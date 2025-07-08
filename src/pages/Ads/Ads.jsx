@@ -18,6 +18,24 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IconEdit, IconTrash, IconEye, IconRefresh } from "@tabler/icons-react";
 import advertiseService from "../../api/advertise";
+import AdsModalView from "./AdsModalView";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
 
 // Status badge configuration
 const getStatusBadge = (status) => {
@@ -48,24 +66,28 @@ export default function Ads() {
     waiting: 0,
     rejected: 0
   });
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Fetch advertisement requests
-  const fetchAdRequests = async () => {
+  const fetchAdRequests = async (pageToFetch) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await advertiseService.getAdvertisementRequests();
-      
+      const response = await advertiseService.getAdvertisementRequests({ page: pageToFetch });
       if (response.success) {
         setAdRequests(response.data.adRequests);
-        
         // Calculate stats
         const total = response.data.total;
         const accepted = response.data.adRequests.filter(req => req.status === 'accepted').length;
         const waiting = response.data.adRequests.filter(req => req.status === 'waiting').length;
         const rejected = response.data.adRequests.filter(req => req.status === 'rejected').length;
-        
         setStats({ total, accepted, waiting, rejected });
+        setTotalPages(response.data.totalPages || 1);
       } else {
         setError(response.message || 'Failed to fetch data');
       }
@@ -76,9 +98,37 @@ export default function Ads() {
     }
   };
 
+  // Always fetch when page changes
   useEffect(() => {
-    fetchAdRequests();
-  }, []);
+    fetchAdRequests(page);
+  }, [page]);
+
+  // Filtered requests (status filter only applies to current page data)
+  const filteredRequests = adRequests.filter((req) => {
+    return statusFilter === "all" ? true : req.status === statusFilter;
+  });
+
+  // When refreshing, reload current page only (do not reset page or filters)
+  const handleRefresh = () => {
+    fetchAdRequests(page);
+  };
+
+  // When search or filter changes, reset to page 1
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  // Handle view request details
+  const handleViewRequest = (request) => {
+    setSelectedRequest(request);
+    setIsModalOpen(true);
+  };
+
+  // Handle close modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedRequest(null);
+  };
 
   if (loading) {
     return (
@@ -102,7 +152,7 @@ export default function Ads() {
           <CardContent className="flex items-center justify-center py-8">
             <div className="text-center">
               <p className="text-red-600 mb-4">{error}</p>
-              <Button onClick={fetchAdRequests} variant="outline">
+              <Button onClick={handleRefresh} variant="outline">
                 <IconRefresh className="h-4 w-4 mr-2" />
                 Try Again
               </Button>
@@ -117,17 +167,37 @@ export default function Ads() {
     <div className="px-4 lg:px-6">
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <CardTitle>Advertisement Requests</CardTitle>
               <CardDescription>
                 Manage advertisement requests from users
               </CardDescription>
             </div>
-            <Button onClick={fetchAdRequests} variant="outline" size="sm">
-              <IconRefresh className="h-4 w-4 mr-2" />
-              Refresh
-            </Button>
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-3">
+              <Input
+                type="text"
+                placeholder="Search by name, email, or phone"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="w-full md:w-64"
+              />
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full md:w-40">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="waiting">Waiting</SelectItem>
+                  <SelectItem value="accepted">Accepted</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button onClick={handleRefresh} variant="outline" size="sm">
+                <IconRefresh className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -165,7 +235,7 @@ export default function Ads() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {adRequests.map((request) => (
+                  {filteredRequests.map((request) => (
                     <TableRow key={request.id}>
                       <TableCell>
                         <div>
@@ -209,7 +279,12 @@ export default function Ads() {
                       <TableCell>{getStatusBadge(request.status)}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="outline" title="View Details">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            title="View Details"
+                            onClick={() => handleViewRequest(request)}
+                          >
                             <IconEye className="h-4 w-4" />
                           </Button>
                           <Button size="sm" variant="outline" title="Edit">
@@ -225,9 +300,46 @@ export default function Ads() {
                 </TableBody>
               </Table>
             </div>
+
+            {/* Pagination */}
+            <div className="mt-6 flex justify-center">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => page > 1 && setPage(page - 1)}
+                      aria-disabled={page === 1}
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <PaginationItem key={i}>
+                      <PaginationLink
+                        isActive={page === i + 1}
+                        onClick={() => setPage(i + 1)}
+                      >
+                        {i + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => page < totalPages && setPage(page + 1)}
+                      aria-disabled={page === totalPages}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal for viewing request details */}
+      <AdsModalView
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        request={selectedRequest}
+      />
     </div>
   );
 }

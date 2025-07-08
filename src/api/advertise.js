@@ -42,9 +42,11 @@ advertiseAPI.interceptors.response.use(
 
 export const advertiseService = {
   // Get advertisement requests
-  getAdvertisementRequests: async () => {
+  getAdvertisementRequests: async ({ page = 1 } = {}) => {
     try {
-      const response = await advertiseAPI.get("/advertisement-request");
+      const response = await advertiseAPI.get(
+        `/advertisement-request?page=${page}`
+      );
       return response.data;
     } catch (error) {
       if (error.response) {
@@ -59,7 +61,6 @@ export const advertiseService = {
       }
     }
   },
-
 };
 
 export default advertiseService;
