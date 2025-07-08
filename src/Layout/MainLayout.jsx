@@ -1,14 +1,68 @@
 import React from "react";
-import Dashboard from "../pages/Dashboard";
+import Dashboard from "../pages/Dashboard/Dashboard";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Users from "../pages/Users";
+import Users from "../pages/Users/Users";
+import AppLayout from "./AppLayout";
+import AuthLayout from "./AuthLayout";
+import ProtectedRoute from "../components/ProtectedRoute";
+import Ads from "../pages/Ads/ads";
+import Login from "../pages/Login/Login";
 
 export default function MainLayout() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/users" element={<Users />} />
+        {/* Auth routes without sidebar */}
+        <Route
+          path="/login"
+          element={
+            <AuthLayout>
+              <Login />
+            </AuthLayout>
+          }
+        />
+
+        {/* App routes with sidebar */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Dashboard />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Dashboard />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Users />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ads-requests"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Ads />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

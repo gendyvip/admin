@@ -1,20 +1,19 @@
 import * as React from "react";
 import {
+  IconAd,
   IconCamera,
-  IconChartBar,
   IconDashboard,
-  IconDatabase,
   IconFileAi,
   IconFileDescription,
   IconFileWord,
-  IconFolder,
   IconHelp,
-  IconInnerShadowTop,
-  IconListDetails,
+  IconId,
   IconReport,
   IconSearch,
   IconSettings,
   IconUsers,
+  IconUsersGroup,
+  IconVaccineBottle,
 } from "@tabler/icons-react";
 
 import { NavDocuments } from "@/components/nav-documents";
@@ -40,23 +39,19 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: IconDashboard,
     },
     {
-      title: "Lifecycle",
+      title: "Users",
       url: "/users",
-      icon: IconListDetails,
+      icon: IconUsersGroup,
     },
+
     {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartBar,
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
+      title: "Ads Requests",
+      url: "/ads-requests",
+      icon: IconAd,
     },
     {
       title: "Team",
@@ -131,9 +126,9 @@ const data = {
   ],
   documents: [
     {
-      name: "Data Library",
+      name: "OCR  ",
       url: "#",
-      icon: IconDatabase,
+      icon: IconId,
     },
     {
       name: "Reports",
@@ -159,8 +154,8 @@ export function AppSidebar({ ...props }) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="#">
-                <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <IconVaccineBottle className="!size-5" />
+                <span className="text-base font-semibold">DawaBack</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
