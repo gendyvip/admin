@@ -46,8 +46,6 @@ const useContactUsStore = create((set, get) => ({
 
   // Fetch status counts (if API supports it)
   fetchStatusCounts: async () => {
-    // يمكنك تعديلها لاحقاً إذا كان هناك endpoint خاص بالإحصائيات
-    // حالياً سنحسبها من البيانات الموجودة
     const requests = get().requests;
     const stats = {
       total: requests.length,

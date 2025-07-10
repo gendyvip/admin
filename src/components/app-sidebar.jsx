@@ -136,27 +136,17 @@ const data = {
       url: "/deals",
       icon: IconReport,
     },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
-    },
   ],
-  documents: [
+  Pharmacies: [
     {
-      name: "OCR  ",
-      url: "#",
+      name: "Phramcies",
+      url: "/pharmacies",
       icon: IconId,
     },
     {
-      name: "Reports",
-      url: "#",
+      name: "Listed Pharmacies",
+      url: "/listed-pharmacies",
       icon: IconReport,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
     },
   ],
 };
@@ -182,7 +172,7 @@ export function AppSidebar({ ...props }) {
       <SidebarContent>
         <NavMain items={data.navMain} />
         <NavDocuments items={data.Deals} name="Deals" />
-        <NavDocuments items={data.documents} name="Documents" />
+        <NavDocuments items={data.Pharmacies} name="Pharmacies" />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

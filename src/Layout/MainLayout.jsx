@@ -10,6 +10,8 @@ import Login from "../pages/Login/Login";
 import ContactUs from "../pages/Contact-us/ContactUs";
 import Drugs from "../pages/Drugs/Drugs";
 import Deals from "../pages/Deals/Deals";
+import Pharmacies from "../pages/Pharmacies/Pharmacies";
+import ListedPharmacies from "../pages/ListedPharmacies/ListedPharmacies";
 
 export default function MainLayout() {
   return (
@@ -92,6 +94,26 @@ export default function MainLayout() {
             <ProtectedRoute>
               <AppLayout>
                 <Deals />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/pharmacies"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Pharmacies />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/listed-pharmacies"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <ListedPharmacies />
               </AppLayout>
             </ProtectedRoute>
           }
