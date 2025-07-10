@@ -1,16 +1,16 @@
 import * as React from "react";
 import {
   IconAd,
+  IconBuildingPavilion,
   IconCamera,
   IconDashboard,
   IconFileAi,
   IconFileDescription,
-  IconFileWord,
   IconHelp,
-  IconId,
   IconReport,
   IconSearch,
   IconSettings,
+  IconSpeakerphone,
   IconUsers,
   IconUsersGroup,
   IconVaccine,
@@ -141,12 +141,12 @@ const data = {
     {
       name: "Phramcies",
       url: "/pharmacies",
-      icon: IconId,
+      icon: IconBuildingPavilion,
     },
     {
       name: "Listed Pharmacies",
       url: "/listed-pharmacies",
-      icon: IconReport,
+      icon: IconSpeakerphone,
     },
   ],
 };
