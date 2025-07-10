@@ -7,6 +7,8 @@ import AuthLayout from "./AuthLayout";
 import ProtectedRoute from "../components/ProtectedRoute";
 import Ads from "../pages/Ads/ads";
 import Login from "../pages/Login/Login";
+import ContactUs from "../pages/Contact-us/ContactUs";
+import Drugs from "../pages/Drugs/Drugs";
 
 export default function MainLayout() {
   return (
@@ -59,6 +61,36 @@ export default function MainLayout() {
             <ProtectedRoute>
               <AppLayout>
                 <Ads />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/contact"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <ContactUs />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/drugs"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Drugs />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/deals"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Drugs />
               </AppLayout>
             </ProtectedRoute>
           }
