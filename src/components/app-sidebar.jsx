@@ -13,6 +13,7 @@ import {
   IconSettings,
   IconUsers,
   IconUsersGroup,
+  IconVaccine,
   IconVaccineBottle,
 } from "@tabler/icons-react";
 
@@ -54,8 +55,8 @@ const data = {
       icon: IconAd,
     },
     {
-      title: "Team",
-      url: "#",
+      title: "Contact",
+      url: "/contact",
       icon: IconUsers,
     },
   ],
@@ -124,6 +125,23 @@ const data = {
       icon: IconSearch,
     },
   ],
+  Deals: [
+    {
+      name: "Drugs",
+      url: "/drugs",
+      icon: IconVaccine,
+    },
+    {
+      name: "Deals",
+      url: "/deals",
+      icon: IconReport,
+    },
+    {
+      name: "Word Assistant",
+      url: "#",
+      icon: IconFileWord,
+    },
+  ],
   documents: [
     {
       name: "OCR  ",
@@ -163,7 +181,8 @@ export function AppSidebar({ ...props }) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
+        <NavDocuments items={data.Deals} name="Deals" />
+        <NavDocuments items={data.documents} name="Documents" />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

@@ -15,35 +15,35 @@ import {
   IconPhone,
   IconCalendar,
   IconUser,
+  IconMessage,
 } from "@tabler/icons-react";
 
 // Status badge configuration
 const getStatusBadge = (status) => {
   const statusConfig = {
-    accepted: { variant: "default", className: "bg-green-100 text-green-800" },
-    waiting: {
+    opened: { variant: "default", className: "bg-green-100 text-green-800" },
+    pending: {
       variant: "secondary",
       className: "bg-yellow-100 text-yellow-800",
     },
-    rejected: { variant: "outline", className: "bg-red-100 text-red-800" },
+    closed: { variant: "outline", className: "bg-red-100 text-red-800" },
   };
 
-  const config = statusConfig[status] || statusConfig.waiting;
+  const config = statusConfig[status.toLowerCase()] || statusConfig.pending;
 
   return (
     <Badge variant={config.variant} className={config.className}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+      {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
     </Badge>
   );
 };
 
-export default function AdsModalView({
+export default function ContactModalView({
   isOpen,
   onClose,
   request,
-  onAccept,
-  onReject,
-  onDelete,
+  onOpenAction,
+  onCloseAction,
   updatingStatus,
 }) {
   if (!request) return null;
@@ -66,10 +66,10 @@ export default function AdsModalView({
           <div className="flex justify-between items-start">
             <div>
               <DialogTitle className="text-xl">
-                Advertisement Request Details
+                Contact Message Details
               </DialogTitle>
               <DialogDescription>
-                View complete information about this advertisement request
+                View complete information about this contact message
               </DialogDescription>
             </div>
           </div>
@@ -80,7 +80,7 @@ export default function AdsModalView({
           <div className="flex justify-between items-center max-md:flex-col max-md:items-start max-md:gap-2">
             <div className="flex items-center gap-2">
               <IconUser className="h-5 w-5 text-gray-500" />
-              <span className="text-sm text-gray-600">Request ID:</span>
+              <span className="text-sm text-gray-600">Message ID:</span>
               <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
                 {request.id}
               </span>
@@ -99,7 +99,7 @@ export default function AdsModalView({
                   Full Name
                 </label>
                 <p className="text-sm bg-gray-50 p-3 rounded-md">
-                  {request.fullName}
+                  {request.name}
                 </p>
               </div>
               <div className="space-y-2">
@@ -122,13 +122,11 @@ export default function AdsModalView({
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-600">
-                  Submitted Date
+                  Sent Date
                 </label>
                 <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-md">
                   <IconCalendar className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm">
-                    {formatDate(request.createdAt)}
-                  </span>
+                  <span className="text-sm">{formatDate(request.sentAt)}</span>
                 </div>
               </div>
             </div>
@@ -136,39 +134,31 @@ export default function AdsModalView({
 
           <Separator />
 
-          {/* Advertisement Content */}
+          {/* Message Content */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Advertisement Content</h3>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-600">
-                Content
-              </label>
-              <div className="bg-gray-50 p-4 rounded-md w-full max-w-[95vw] sm:w-[600px] break-all">
-                <p className="text-sm whitespace-pre-wrap break-all">
-                  {request.content}
-                </p>
+            <h3 className="text-lg font-semibold">Message Content</h3>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-600">
+                  Subject
+                </label>
+                <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-md">
+                  <IconMessage className="h-4 w-4 text-gray-500" />
+                  <span className="text-sm font-medium">{request.subject}</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-600">
+                  Message
+                </label>
+                <div className="bg-gray-50 p-4 rounded-md w-full max-w-[95vw] sm:w-[600px] break-all">
+                  <p className="text-sm whitespace-pre-wrap break-all leading-relaxed">
+                    {request.message}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Additional Information */}
-          {request.additionalInfo && (
-            <>
-              <Separator />
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">
-                  Additional Information
-                </h3>
-                <div className="space-y-2">
-                  <div className="bg-gray-50 p-4 rounded-md">
-                    <p className="text-sm whitespace-pre-wrap leading-relaxed">
-                      {request.additionalInfo}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
 
           {/* Actions */}
           <Separator />
@@ -176,36 +166,36 @@ export default function AdsModalView({
             <Button variant="outline" onClick={onClose}>
               Close
             </Button>
-            {request.status !== "accepted" && (
+            {request.status.toLowerCase() !== "opened" && (
               <Button
                 className="bg-green-800 hover:bg-green-900 hover:text-white text-white"
                 variant="outline"
-                onClick={() => onAccept && onAccept(request.id)}
+                onClick={() => onOpenAction && onOpenAction(request.id)}
                 disabled={
                   updatingStatus?.requestId === request.id &&
-                  updatingStatus?.status === "accepted"
+                  updatingStatus?.status === "opened"
                 }
               >
                 {updatingStatus?.requestId === request.id &&
-                updatingStatus?.status === "accepted"
+                updatingStatus?.status === "opened"
                   ? "Updating..."
-                  : "Accept"}
+                  : "Mark as Opened"}
               </Button>
             )}
-            {request.status !== "rejected" && (
+            {request.status.toLowerCase() !== "closed" && (
               <Button
                 className="bg-red-500 hover:bg-red-700 hover:text-white text-white"
                 variant="outline"
-                onClick={() => onReject && onReject(request.id)}
+                onClick={() => onCloseAction && onCloseAction(request.id)}
                 disabled={
                   updatingStatus?.requestId === request.id &&
-                  updatingStatus?.status === "rejected"
+                  updatingStatus?.status === "closed"
                 }
               >
                 {updatingStatus?.requestId === request.id &&
-                updatingStatus?.status === "rejected"
+                updatingStatus?.status === "closed"
                   ? "Updating..."
-                  : "Reject"}
+                  : "Mark as Closed"}
               </Button>
             )}
           </div>
