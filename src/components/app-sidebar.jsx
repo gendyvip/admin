@@ -54,8 +54,8 @@ const data = {
       icon: IconAd,
     },
     {
-      title: "Team",
-      url: "#",
+      title: "Contact",
+      url: "/",
       icon: IconUsers,
     },
   ],

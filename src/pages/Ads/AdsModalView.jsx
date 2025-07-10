@@ -37,7 +37,15 @@ const getStatusBadge = (status) => {
   );
 };
 
-export default function AdsModalView({ isOpen, onClose, request }) {
+export default function AdsModalView({
+  isOpen,
+  onClose,
+  request,
+  onAccept,
+  onReject,
+  onDelete,
+  updatingStatus,
+}) {
   if (!request) return null;
 
   const formatDate = (dateString) => {
@@ -164,28 +172,42 @@ export default function AdsModalView({ isOpen, onClose, request }) {
 
           {/* Actions */}
           <Separator />
-          <div className="flex justify-end gap-3 pt-4 max-md:grid max-md:grid-cols-2 max-md:w-full max-md:justify-center">
+          <div className="flex justify-end gap-3 max-md:grid max-md:grid-cols-2 max-md:w-full max-md:justify-center">
             <Button variant="outline" onClick={onClose}>
               Close
             </Button>
-            <Button
-              variant="outline"
-              className="text-blue-600 hover:text-blue-700"
-            >
-              Edit Request
-            </Button>
-            <Button
-              variant="outline"
-              className="text-green-600 hover:text-green-700"
-            >
-              Accept
-            </Button>
-            <Button
-              variant="outline"
-              className="text-red-600 hover:text-red-700"
-            >
-              Reject
-            </Button>
+            {request.status !== "accepted" && (
+              <Button
+                className="bg-green-800 hover:bg-green-900 hover:text-white text-white"
+                variant="outline"
+                onClick={() => onAccept && onAccept(request.id)}
+                disabled={
+                  updatingStatus?.requestId === request.id &&
+                  updatingStatus?.status === "accepted"
+                }
+              >
+                {updatingStatus?.requestId === request.id &&
+                updatingStatus?.status === "accepted"
+                  ? "Updating..."
+                  : "Accept"}
+              </Button>
+            )}
+            {request.status !== "rejected" && (
+              <Button
+                className="bg-red-500 hover:bg-red-700 hover:text-white text-white"
+                variant="outline"
+                onClick={() => onReject && onReject(request.id)}
+                disabled={
+                  updatingStatus?.requestId === request.id &&
+                  updatingStatus?.status === "rejected"
+                }
+              >
+                {updatingStatus?.requestId === request.id &&
+                updatingStatus?.status === "rejected"
+                  ? "Updating..."
+                  : "Reject"}
+              </Button>
+            )}
           </div>
         </div>
       </DialogContent>
