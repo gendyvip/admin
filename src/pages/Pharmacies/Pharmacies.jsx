@@ -22,6 +22,7 @@ import {
   IconRefresh,
   IconUser,
   IconMapPin,
+  IconMap,
 } from "@tabler/icons-react";
 import {
   Dialog,
@@ -32,147 +33,16 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import usePharmaciesStore from "../../store/usePharmacies";
 import useDebounce from "../../hooks/use-debounce";
-
-function PharmacyModal({ open, onClose, pharmacy }) {
-  if (!pharmacy) return null;
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex justify-between items-start">
-            <div>
-              <DialogTitle className="text-xl">Pharmacy Details</DialogTitle>
-              <DialogDescription>
-                View all pharmacy information
-              </DialogDescription>
-            </div>
-          </div>
-        </DialogHeader>
-        <div className="space-y-6">
-          {/* Main Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-600">Name</label>
-              <p className="text-sm bg-gray-50 p-3 rounded-md">
-                {pharmacy.name}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-600">
-                License Number
-              </label>
-              <p className="text-sm bg-gray-50 p-3 rounded-md">
-                {pharmacy.licenseNum}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-600">Phone</label>
-              <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-md">
-                <IconPhone className="h-4 w-4 text-gray-500" />
-                <span className="text-sm">{pharmacy.pharmacyPhone}</span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-600">City</label>
-              <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-md">
-                <IconMapPin className="h-4 w-4 text-gray-500" />
-                <span className="text-sm">{pharmacy.city}</span>
-              </div>
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium text-gray-600">
-                Address
-              </label>
-              <p className="text-sm bg-gray-50 p-3 rounded-md">
-                {pharmacy.addressLine1}
-              </p>
-            </div>
-            {pharmacy.imagesUrls && pharmacy.imagesUrls.length > 0 && (
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium text-gray-600">
-                  Pharmacy Image
-                </label>
-                <img
-                  src={pharmacy.imagesUrls[0]}
-                  alt="pharmacy"
-                  className="w-32 h-32 object-cover rounded-md border"
-                />
-              </div>
-            )}
-          </div>
-          <Separator />
-          {/* Owner Info */}
-          {pharmacy.owner && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Owner Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600">
-                    Name
-                  </label>
-                  <p className="text-sm bg-gray-50 p-3 rounded-md">
-                    {pharmacy.owner.fullName}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600">
-                    Email
-                  </label>
-                  <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-md">
-                    <IconMail className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm">{pharmacy.owner.email}</span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600">
-                    Phone
-                  </label>
-                  <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-md">
-                    <IconPhone className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm">{pharmacy.owner.phone}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          <Separator />
-          {/* Deals List */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Deals</h3>
-            {pharmacy.deals && pharmacy.deals.length > 0 ? (
-              <div className="border rounded-lg">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Medicine Name</TableHead>
-                      <TableHead>Quantity</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pharmacy.deals.map((deal) => (
-                      <TableRow key={deal.id}>
-                        <TableCell>{deal.medicineName}</TableCell>
-                        <TableCell>{deal.quantity}</TableCell>
-                        <TableCell>{deal.price}</TableCell>
-                        <TableCell>{deal.boxStatus}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            ) : (
-              <div className="text-gray-500">No deals for this pharmacy.</div>
-            )}
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
+import PharmacyModalView from "./pharmacyModalView.jsx";
 
 export default function Pharmacies() {
   const { pharmacies, loading, error, pagination, search, fetchPharmacies } =
@@ -181,6 +51,38 @@ export default function Pharmacies() {
   const debouncedSearch = useDebounce(searchValue, 700);
   const [selectedPharmacy, setSelectedPharmacy] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [governorate, setGovernorate] = useState("all");
+
+  const governorates = [
+    "all",
+    "Cairo",
+    "Giza",
+    "Alexandria",
+    "Dakahlia",
+    "Red Sea",
+    "Beheira",
+    "Fayoum",
+    "Gharbia",
+    "Ismailia",
+    "Menofia",
+    "Minya",
+    "Qaliubiya",
+    "New Valley",
+    "Suez",
+    "Aswan",
+    "Assiut",
+    "Beni Suef",
+    "Port Said",
+    "Damietta",
+    "Sharkia",
+    "South Sinai",
+    "Kafr El Sheikh",
+    "Matrouh",
+    "Luxor",
+    "Qena",
+    "North Sinai",
+    "Sohag",
+  ];
 
   useEffect(() => {
     fetchPharmacies(1, "");
@@ -211,12 +113,21 @@ export default function Pharmacies() {
     setSelectedPharmacy(null);
   };
 
+  // Filtering by governorate (frontend)
+  const filteredPharmacies =
+    governorate === "all"
+      ? pharmacies
+      : pharmacies.filter(
+          (p) =>
+            p.governorate &&
+            p.governorate.toLowerCase() === governorate.toLowerCase()
+        );
   // Summary stats
-  const all = pagination.total;
-  const withDeals = pharmacies.filter(
+  const all = filteredPharmacies.length;
+  const withDeals = filteredPharmacies.filter(
     (p) => p.deals && p.deals.length > 0
   ).length;
-  const withoutDeals = pharmacies.filter(
+  const withoutDeals = filteredPharmacies.filter(
     (p) => !p.deals || p.deals.length === 0
   ).length;
 
@@ -237,6 +148,18 @@ export default function Pharmacies() {
                 onChange={(e) => setSearchValue(e.target.value)}
                 className="w-full md:w-64"
               />
+              <Select value={governorate} onValueChange={setGovernorate}>
+                <SelectTrigger className="w-full md:w-48">
+                  <SelectValue placeholder="All Governorates" />
+                </SelectTrigger>
+                <SelectContent>
+                  {governorates.map((gov) => (
+                    <SelectItem key={gov} value={gov}>
+                      {gov === "all" ? "All Governorates" : gov}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button
                 onClick={handleRefresh}
                 variant="outline"
@@ -281,36 +204,37 @@ export default function Pharmacies() {
                   <TableHead>Phone</TableHead>
                   <TableHead>City</TableHead>
                   <TableHead>Deals Count</TableHead>
+                  <TableHead>Get Direction</TableHead>
                   <TableHead>Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
+                    <TableCell colSpan={7} className="text-center py-8">
                       Loading pharmacies...
                     </TableCell>
                   </TableRow>
                 ) : error ? (
                   <TableRow>
                     <TableCell
-                      colSpan={6}
+                      colSpan={7}
                       className="text-center py-8 text-red-600"
                     >
                       {error}
                     </TableCell>
                   </TableRow>
-                ) : pharmacies.length === 0 ? (
+                ) : filteredPharmacies.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={6}
+                      colSpan={7}
                       className="text-center py-8 text-gray-400"
                     >
                       No pharmacies found.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  pharmacies.map((pharmacy) => (
+                  filteredPharmacies.map((pharmacy) => (
                     <TableRow key={pharmacy.id}>
                       <TableCell>{pharmacy.name}</TableCell>
                       <TableCell>{pharmacy.licenseNum}</TableCell>
@@ -318,6 +242,26 @@ export default function Pharmacies() {
                       <TableCell>{pharmacy.city}</TableCell>
                       <TableCell>
                         {pharmacy.deals ? pharmacy.deals.length : 0}
+                      </TableCell>
+                      <TableCell>
+                        {pharmacy.location &&
+                          Array.isArray(pharmacy.location.coordinates) &&
+                          pharmacy.location.coordinates.length === 2 && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              title="Get Direction"
+                              onClick={() => {
+                                const [longitude, latitude] =
+                                  pharmacy.location.coordinates;
+                                const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+                                window.open(url, "_blank");
+                              }}
+                            >
+                              <IconMap className="h-4 w-4 mr-1" />
+                              Get Direction
+                            </Button>
+                          )}
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
@@ -344,18 +288,84 @@ export default function Pharmacies() {
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(pagination.page - 1)}
-                disabled={pagination.page === 1 || loading}
+                disabled={pagination.page <= 1 || loading}
               >
                 Previous
               </Button>
-              <span className="mx-2 text-sm">
-                Page {pagination.page} of {pagination.totalPages}
-              </span>
+              <div className="flex items-center gap-1">
+                {(() => {
+                  const pages = [];
+                  const { page, totalPages } = pagination;
+                  const windowSize = 2;
+                  let start = Math.max(2, page - windowSize);
+                  let end = Math.min(totalPages - 1, page + windowSize);
+                  // Always show first page
+                  pages.push(
+                    <Button
+                      key={1}
+                      variant={page === 1 ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handlePageChange(1)}
+                      disabled={loading}
+                      className="w-8 h-8 p-0"
+                    >
+                      1
+                    </Button>
+                  );
+                  // Ellipsis before window
+                  if (start > 2) {
+                    pages.push(
+                      <span key="start-ellipsis" className="px-1">
+                        ...
+                      </span>
+                    );
+                  }
+                  // Windowed pages
+                  for (let i = start; i <= end; i++) {
+                    pages.push(
+                      <Button
+                        key={i}
+                        variant={page === i ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(i)}
+                        disabled={loading}
+                        className="w-8 h-8 p-0"
+                      >
+                        {i}
+                      </Button>
+                    );
+                  }
+                  // Ellipsis after window
+                  if (end < totalPages - 1) {
+                    pages.push(
+                      <span key="end-ellipsis" className="px-1">
+                        ...
+                      </span>
+                    );
+                  }
+                  // Always show last page
+                  if (totalPages > 1) {
+                    pages.push(
+                      <Button
+                        key={totalPages}
+                        variant={page === totalPages ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(totalPages)}
+                        disabled={loading}
+                        className="w-8 h-8 p-0"
+                      >
+                        {totalPages}
+                      </Button>
+                    );
+                  }
+                  return pages;
+                })()}
+              </div>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(pagination.page + 1)}
-                disabled={pagination.page === pagination.totalPages || loading}
+                disabled={pagination.page >= pagination.totalPages || loading}
               >
                 Next
               </Button>
@@ -364,7 +374,7 @@ export default function Pharmacies() {
         </CardContent>
       </Card>
       {/* Modal */}
-      <PharmacyModal
+      <PharmacyModalView
         open={isModalOpen}
         onClose={handleCloseModal}
         pharmacy={selectedPharmacy}

@@ -34,6 +34,13 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import useDealsStore from "../../store/useDeals";
 import useDebounce from "../../hooks/use-debounce";
 
@@ -237,6 +244,7 @@ export default function Deals() {
   const debouncedSearch = useDebounce(searchValue, 700);
   const [selectedDeal, setSelectedDeal] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [boxStatusFilter, setBoxStatusFilter] = useState("all");
 
   useEffect(() => {
     fetchDeals(1, "");
@@ -272,9 +280,16 @@ export default function Deals() {
   };
 
   // Summary stats
-  const all = pagination.total;
-  const opened = deals.filter((d) => !d.isClosed).length;
-  const closed = deals.filter((d) => d.isClosed).length;
+  const filteredDeals =
+    boxStatusFilter === "all"
+      ? deals
+      : deals.filter((d) =>
+          boxStatusFilter === "damaged"
+            ? d.boxStatus === "damaged"
+            : d.boxStatus === "good" || d.boxStatus === "valid"
+        );
+  const opened = filteredDeals.filter((d) => !d.isClosed).length;
+  const closed = filteredDeals.filter((d) => d.isClosed).length;
 
   return (
     <div className="px-4 lg:px-6">
@@ -293,6 +308,19 @@ export default function Deals() {
                 onChange={(e) => setSearchValue(e.target.value)}
                 className="w-full md:w-64"
               />
+              <Select
+                value={boxStatusFilter}
+                onValueChange={setBoxStatusFilter}
+              >
+                <SelectTrigger className="w-full md:w-40">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="damaged">Damaged</SelectItem>
+                  <SelectItem value="good">Good</SelectItem>
+                </SelectContent>
+              </Select>
               <Button
                 onClick={handleRefresh}
                 variant="outline"
@@ -310,7 +338,7 @@ export default function Deals() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="p-4 border rounded-lg">
               <h3 className="font-semibold text-sm text-gray-600">All Deals</h3>
-              <p className="text-2xl font-bold">{all}</p>
+              <p className="text-2xl font-bold">{filteredDeals.length}</p>
             </div>
             <div className="p-4 border rounded-lg">
               <h3 className="font-semibold text-sm text-gray-600">
@@ -353,7 +381,7 @@ export default function Deals() {
                       {error}
                     </TableCell>
                   </TableRow>
-                ) : deals.length === 0 ? (
+                ) : filteredDeals.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={5}
@@ -363,7 +391,7 @@ export default function Deals() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  deals.map((deal) => (
+                  filteredDeals.map((deal) => (
                     <TableRow key={deal.id}>
                       <TableCell>{deal.medicineName}</TableCell>
                       <TableCell>{deal.quantity}</TableCell>
@@ -403,18 +431,84 @@ export default function Deals() {
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(pagination.page - 1)}
-                disabled={pagination.page === 1 || loading}
+                disabled={pagination.page <= 1 || loading}
               >
                 Previous
               </Button>
-              <span className="mx-2 text-sm">
-                Page {pagination.page} of {pagination.totalPages}
-              </span>
+              <div className="flex items-center gap-1">
+                {(() => {
+                  const pages = [];
+                  const { page, totalPages } = pagination;
+                  const windowSize = 2;
+                  let start = Math.max(2, page - windowSize);
+                  let end = Math.min(totalPages - 1, page + windowSize);
+                  // Always show first page
+                  pages.push(
+                    <Button
+                      key={1}
+                      variant={page === 1 ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handlePageChange(1)}
+                      disabled={loading}
+                      className="w-8 h-8 p-0"
+                    >
+                      1
+                    </Button>
+                  );
+                  // Ellipsis before window
+                  if (start > 2) {
+                    pages.push(
+                      <span key="start-ellipsis" className="px-1">
+                        ...
+                      </span>
+                    );
+                  }
+                  // Windowed pages
+                  for (let i = start; i <= end; i++) {
+                    pages.push(
+                      <Button
+                        key={i}
+                        variant={page === i ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(i)}
+                        disabled={loading}
+                        className="w-8 h-8 p-0"
+                      >
+                        {i}
+                      </Button>
+                    );
+                  }
+                  // Ellipsis after window
+                  if (end < totalPages - 1) {
+                    pages.push(
+                      <span key="end-ellipsis" className="px-1">
+                        ...
+                      </span>
+                    );
+                  }
+                  // Always show last page
+                  if (totalPages > 1) {
+                    pages.push(
+                      <Button
+                        key={totalPages}
+                        variant={page === totalPages ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(totalPages)}
+                        disabled={loading}
+                        className="w-8 h-8 p-0"
+                      >
+                        {totalPages}
+                      </Button>
+                    );
+                  }
+                  return pages;
+                })()}
+              </div>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(pagination.page + 1)}
-                disabled={pagination.page === pagination.totalPages || loading}
+                disabled={pagination.page >= pagination.totalPages || loading}
               >
                 Next
               </Button>
