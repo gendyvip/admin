@@ -35,6 +35,19 @@ const useDrugsStore = create((set, get) => ({
     }
   },
 
+  deleteDrug: async (drugId) => {
+    set({ loading: true, error: null });
+    try {
+      await drugsAPI.deleteDrug(drugId);
+      set((state) => ({
+        drugs: state.drugs.filter((d) => d.id !== drugId),
+        loading: false,
+      }));
+    } catch (error) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
   clearError: () => set({ error: null }),
 }));
 

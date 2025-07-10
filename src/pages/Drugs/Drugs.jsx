@@ -25,6 +25,14 @@ import {
 import useDrugsStore from "../../store/useDrugs";
 import useDebounce from "../../hooks/use-debounce";
 import AddDrugModal from "./AddDrugModal";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 export default function Drugs() {
   const {
@@ -35,12 +43,15 @@ export default function Drugs() {
     fetchAllDrugs,
     clearError,
     search,
+    deleteDrug,
   } = useDrugsStore();
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearch = useDebounce(searchValue, 700);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editDrug, setEditDrug] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [drugToDelete, setDrugToDelete] = useState(null);
 
   useEffect(() => {
     fetchAllDrugs(1, "");
@@ -80,7 +91,22 @@ export default function Drugs() {
   };
 
   const handleDeleteDrug = (drug) => {
-    // Open delete confirm (to be implemented)
+    setDrugToDelete(drug);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteDrug = async () => {
+    if (drugToDelete) {
+      await deleteDrug(drugToDelete.id);
+      setDeleteDialogOpen(false);
+      setDrugToDelete(null);
+      fetchAllDrugs(pagination.page, debouncedSearch);
+    }
+  };
+
+  const cancelDeleteDrug = () => {
+    setDeleteDialogOpen(false);
+    setDrugToDelete(null);
   };
 
   return (
@@ -305,6 +331,48 @@ export default function Drugs() {
         id={editDrug ? editDrug.id : ""}
         onSubmit={() => {}}
       />
+      {/* Delete Drug Confirmation Modal */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Drug</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the
+              drug from the system.
+            </DialogDescription>
+          </DialogHeader>
+          {drugToDelete && (
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-sm text-gray-600">Drug ID:</span>
+              <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                {drugToDelete.id}
+              </span>
+            </div>
+          )}
+          <div className="space-y-4">
+            <div>
+              Are you sure you want to delete{" "}
+              <span className="font-bold">{drugToDelete?.drugName}</span>?
+            </div>
+          </div>
+          <DialogFooter className="mt-4 flex gap-2 justify-end">
+            <Button
+              variant="outline"
+              onClick={cancelDeleteDrug}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteDrug}
+              disabled={loading}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

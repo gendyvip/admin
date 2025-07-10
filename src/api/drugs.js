@@ -41,6 +41,22 @@ export const getAllDrugs = async (page = 1, search = "") => {
   }
 };
 
+export const deleteDrug = async (drugId) => {
+  try {
+    const response = await drugsAPI.delete(`/drug-details/${drugId}`);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw new Error(error.response.data?.message || "Failed to delete drug");
+    } else if (error.request) {
+      throw new Error("Server is not responding. Please try again later.");
+    } else {
+      throw error;
+    }
+  }
+};
+
 export default {
   getAllDrugs,
+  deleteDrug,
 };
