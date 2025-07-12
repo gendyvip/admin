@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import useDrugsStore from "../../store/useDrugs";
 
 export default function AddDrugModal({
   isOpen,
@@ -18,16 +19,33 @@ export default function AddDrugModal({
   id = "",
 }) {
   const [drugName, setDrugName] = useState(initialValue || "");
+  const { addDrug, loading, error, clearError } = useDrugsStore();
 
   // Reset input when modal closes or mode/initialValue changes
   useEffect(() => {
-    if (!isOpen) setDrugName("");
-    else setDrugName(initialValue || "");
-  }, [isOpen, mode, initialValue]);
+    if (!isOpen) {
+      setDrugName("");
+      clearError();
+    } else {
+      setDrugName(initialValue || "");
+    }
+  }, [isOpen, mode, initialValue, clearError]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (drugName.trim()) {
-      onSubmit && onSubmit(drugName.trim());
+      try {
+        if (mode === "add") {
+          await addDrug({ drugName: drugName.trim() });
+          onClose();
+          onSubmit && onSubmit();
+        } else {
+          // Handle edit mode - you'll need to implement updateDrug in the store
+          onSubmit && onSubmit(drugName.trim());
+        }
+      } catch (error) {
+        // Error is already handled in the store
+        console.error("Failed to submit drug:", error);
+      }
     }
   };
 
@@ -48,20 +66,26 @@ export default function AddDrugModal({
           </div>
         )}
         <div className="space-y-4">
+          {error && (
+            <div className="text-red-600 text-sm bg-red-50 p-2 rounded">
+              {error}
+            </div>
+          )}
           <Input
             type="text"
             placeholder="Drug name"
             value={drugName}
             onChange={(e) => setDrugName(e.target.value)}
             className="w-full"
+            disabled={loading}
           />
         </div>
         <DialogFooter className="mt-4 flex gap-2 justify-end">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={!drugName.trim()}>
-            {mode === "edit" ? "Save" : "Add"}
+          <Button onClick={handleSubmit} disabled={!drugName.trim() || loading}>
+            {loading ? "Saving..." : mode === "edit" ? "Save" : "Add"}
           </Button>
         </DialogFooter>
       </DialogContent>

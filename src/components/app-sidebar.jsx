@@ -31,12 +31,35 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
+// Function to get user data from localStorage
+const getUserData = () => {
+  try {
+    const authStore = localStorage.getItem("auth-store");
+    if (authStore) {
+      const parsed = JSON.parse(authStore);
+      const user = parsed.state?.user;
+      if (user) {
+        return {
+          name: user.fullName || user.email?.split("@")[0] || "User",
+          email: user.email || "user@example.com",
+          avatar: "/avatars/default.jpg", // You can update this with actual avatar logic
+        };
+      }
+    }
+  } catch (error) {
+    console.error("Error parsing auth store:", error);
+  }
+
+  // Fallback data if localStorage is not available or invalid
+  return {
+    name: "User",
+    email: "user@example.com",
+    avatar: "/avatars/default.jpg",
+  };
+};
+
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
+  user: getUserData(),
   navMain: [
     {
       title: "Dashboard",

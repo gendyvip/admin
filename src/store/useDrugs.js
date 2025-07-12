@@ -48,6 +48,21 @@ const useDrugsStore = create((set, get) => ({
     }
   },
 
+  addDrug: async (drugData) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await drugsAPI.addDrug(drugData);
+      set((state) => ({
+        drugs: [response.data, ...state.drugs],
+        loading: false,
+      }));
+      return response.data;
+    } catch (error) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
   clearError: () => set({ error: null }),
 }));
 

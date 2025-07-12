@@ -80,6 +80,11 @@ export default function Drugs() {
     setIsAddModalOpen(false);
   };
 
+  const handleAddDrugSuccess = () => {
+    // Refresh the current page to show the new drug
+    fetchAllDrugs(pagination.page, debouncedSearch);
+  };
+
   const handleEditDrug = (drug) => {
     setEditDrug(drug);
     setIsEditModalOpen(true);
@@ -321,7 +326,7 @@ export default function Drugs() {
         isOpen={isAddModalOpen}
         onClose={handleCloseAddModal}
         mode="add"
-        onSubmit={() => {}}
+        onSubmit={handleAddDrugSuccess}
       />
       <AddDrugModal
         isOpen={isEditModalOpen}

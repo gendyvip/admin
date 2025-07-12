@@ -56,7 +56,23 @@ export const deleteDrug = async (drugId) => {
   }
 };
 
+export const addDrug = async (drugData) => {
+  try {
+    const response = await drugsAPI.post("/drug-details", drugData);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw new Error(error.response.data?.message || "Failed to add drug");
+    } else if (error.request) {
+      throw new Error("Server is not responding. Please try again later.");
+    } else {
+      throw error;
+    }
+  }
+};
+
 export default {
   getAllDrugs,
   deleteDrug,
+  addDrug,
 };
