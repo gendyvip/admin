@@ -4,10 +4,74 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard</title>
+    <meta
+      name="description"
+      content="Admin Dashboard - Manage your application"
+    />
+    <meta name="theme-color" content="#000000" />
+    <title>Admin Dashboard</title>
+
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="http://localhost:3000" />
+    <link rel="dns-prefetch" href="http://localhost:3000" />
+
+    <!-- Ensure content is visible immediately -->
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #ffffff;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+          "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+          "Helvetica Neue", sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      #root {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      /* Prevent layout shift during loading */
+      .loading-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background-color: #ffffff;
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Fallback content for immediate display -->
+      <div class="loading-container">
+        <div style="text-align: center">
+          <div
+            style="
+              width: 48px;
+              height: 48px;
+              border: 4px solid #f3f3f3;
+              border-top: 4px solid #000;
+              border-radius: 50%;
+              animation: spin 1s linear infinite;
+              margin: 0 auto 16px;
+            "
+          ></div>
+          <p style="color: #666; margin: 0">Loading...</p>
+        </div>
+      </div>
+      <style>
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+      </style>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

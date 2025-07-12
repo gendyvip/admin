@@ -5,9 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:clean": "node scripts/dev-server.js",
+    "dev:local": "vite --host localhost --port 5173",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "clean": "taskkill /F /IM node.exe 2>nul || true",
+    "restart": "npm run clean && npm run dev"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

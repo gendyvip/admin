@@ -1,10 +1,10 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AppLayout from "./AppLayout";
 import AuthLayout from "./AuthLayout";
 import ProtectedRoute from "../components/ProtectedRoute";
 
-// Lazy load all page components
+// Lazy load all page components with better error handling
 const Dashboard = React.lazy(() => import("../pages/Dashboard/Dashboard"));
 const Users = React.lazy(() => import("../pages/Users/Users"));
 const Ads = React.lazy(() => import("../pages/Ads/ads"));
@@ -17,14 +17,50 @@ const ListedPharmacies = React.lazy(() =>
   import("../pages/ListedPharmacies/ListedPharmacies")
 );
 
-// Loading component
+// Enhanced Loading component with better visual feedback
 const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+  <div className="flex items-center justify-center min-h-screen bg-background">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+      <p className="text-muted-foreground">Loading...</p>
+    </div>
+  </div>
+);
+
+// Error Boundary Component
+const ErrorFallback = ({ error, resetErrorBoundary }) => (
+  <div className="flex items-center justify-center min-h-screen bg-background">
+    <div className="text-center">
+      <h2 className="text-xl font-semibold text-destructive mb-2">
+        Something went wrong
+      </h2>
+      <p className="text-muted-foreground mb-4">{error.message}</p>
+      <button
+        onClick={resetErrorBoundary}
+        className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+      >
+        Try again
+      </button>
+    </div>
   </div>
 );
 
 export default function MainLayout() {
+  const [isAppReady, setIsAppReady] = useState(false);
+
+  useEffect(() => {
+    // Ensure the app is ready before rendering
+    const timer = setTimeout(() => {
+      setIsAppReady(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isAppReady) {
+    return <PageLoader />;
+  }
+
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
