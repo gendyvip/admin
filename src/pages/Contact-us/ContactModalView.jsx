@@ -16,6 +16,7 @@ import {
   IconCalendar,
   IconUser,
   IconMessage,
+  IconTrash,
 } from "@tabler/icons-react";
 
 // Status badge configuration
@@ -44,6 +45,7 @@ export default function ContactModalView({
   request,
   onOpenAction,
   onCloseAction,
+  onDeleteAction,
   updatingStatus,
 }) {
   if (!request) return null;
@@ -198,6 +200,15 @@ export default function ContactModalView({
                   : "Mark as Closed"}
               </Button>
             )}
+            <Button
+              variant="outline"
+              title="Delete"
+              onClick={() => onDeleteAction && onDeleteAction(request.id)}
+              disabled={updatingStatus?.requestId === request.id}
+              className="text-red-600 hover:text-red-700"
+            >
+              <IconTrash className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </DialogContent>

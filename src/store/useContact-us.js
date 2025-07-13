@@ -19,10 +19,13 @@ const useContactUsStore = create((set, get) => ({
   error: null,
 
   // Fetch contact us requests
-  fetchContactUsRequests: async (page = 1) => {
+  fetchContactUsRequests: async (page = 1, search = "") => {
     try {
       set({ loading: true, error: null });
-      const response = await contactUsService.getContactUsRequests({ page });
+      const response = await contactUsService.getContactUsRequests({
+        page,
+        search,
+      });
       if (response.success) {
         set({
           requests: response.data.messages || [],
@@ -44,19 +47,31 @@ const useContactUsStore = create((set, get) => ({
     }
   },
 
-  // Fetch status counts (if API supports it)
+  // Fetch status counts from API
   fetchStatusCounts: async () => {
-    const requests = get().requests;
-    const stats = {
-      total: requests.length,
-      opened: requests.filter((r) => r.status.toLowerCase() === "opened")
-        .length,
-      pending: requests.filter((r) => r.status.toLowerCase() === "pending")
-        .length,
-      closed: requests.filter((r) => r.status.toLowerCase() === "closed")
-        .length,
-    };
-    set({ stats });
+    try {
+      set({ loading: true, error: null });
+      const response = await contactUsService.getContactUsStatusCounts();
+      if (response.success) {
+        set({
+          stats: {
+            ...response.data,
+            total:
+              (response.data.opened || 0) +
+              (response.data.closed || 0) +
+              (response.data.waiting || 0),
+          },
+          loading: false,
+        });
+      } else {
+        set({
+          error: response.message || "Failed to fetch status counts",
+          loading: false,
+        });
+      }
+    } catch (error) {
+      set({ error: error.message, loading: false });
+    }
   },
 
   // Refresh data (requests + stats)

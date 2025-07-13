@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { IconRefresh } from "@tabler/icons-react";
+import { IconRefresh, IconTrash } from "@tabler/icons-react";
 import {
   Table,
   TableBody,
@@ -19,9 +19,25 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { IconEye } from "@tabler/icons-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import ContactModalView from "./ContactModalView";
 import useContactUsStore from "../../store/useContact-us";
 import { contactUsService } from "../../api/contact-us";
+import useDebounce from "../../hooks/use-debounce";
 
 export default function ContactUs() {
   const {
@@ -36,32 +52,40 @@ export default function ContactUs() {
     clearError,
   } = useContactUsStore();
 
-  const [search, setSearch] = useState("");
+  const [searchValue, setSearchValue] = useState("");
+  const debouncedSearch = useDebounce(searchValue, 700);
+  const [statusFilter, setStatusFilter] = useState("all");
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updatingId, setUpdatingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [requestToDelete, setRequestToDelete] = useState(null);
 
   useEffect(() => {
-    fetchContactUsRequests(1);
+    fetchContactUsRequests(1, "");
     fetchStatusCounts();
   }, [fetchContactUsRequests, fetchStatusCounts]);
 
-  // Filtered requests by search
+  // When debounced search changes, reset to page 1 and fetch from backend
+  useEffect(() => {
+    fetchContactUsRequests(1, debouncedSearch);
+  }, [debouncedSearch, fetchContactUsRequests]);
+
+  // Filtered requests by status (frontend filtering)
   const filteredRequests = requests.filter((req) => {
-    const q = search.toLowerCase();
-    return (
-      req.name.toLowerCase().includes(q) ||
-      req.email.toLowerCase().includes(q) ||
-      req.phone.toLowerCase().includes(q)
-    );
+    const statusMatch =
+      statusFilter === "all" ||
+      req.status.toLowerCase() === statusFilter.toLowerCase();
+    return statusMatch;
   });
 
   const handleRefresh = () => {
-    refreshData(pagination.page);
+    fetchContactUsRequests(pagination.page, debouncedSearch);
   };
 
   const handlePageChange = (newPage) => {
-    fetchContactUsRequests(newPage);
+    fetchContactUsRequests(newPage, debouncedSearch);
   };
 
   const handleViewRequest = (request) => {
@@ -79,7 +103,7 @@ export default function ContactUs() {
     setUpdatingId(id);
     try {
       await contactUsService.updateContactUsStatus(id, status);
-      await fetchContactUsRequests(pagination.page);
+      await fetchContactUsRequests(pagination.page, debouncedSearch);
     } catch (err) {
       alert(err.message);
     } finally {
@@ -87,12 +111,40 @@ export default function ContactUs() {
     }
   };
 
+  // Handle delete request
+  const handleDelete = async (id) => {
+    setRequestToDelete(requests.find((req) => req.id === id));
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (requestToDelete) {
+      setDeletingId(requestToDelete.id);
+      try {
+        await contactUsService.deleteContactUsRequest(requestToDelete.id);
+        await fetchContactUsRequests(pagination.page, debouncedSearch);
+        await fetchStatusCounts();
+        // Close modal if the deleted request was open
+        if (selectedRequest && selectedRequest.id === requestToDelete.id) {
+          handleCloseModal();
+        }
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        setDeletingId(null);
+        setDeleteDialogOpen(false);
+        setRequestToDelete(null);
+      }
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setRequestToDelete(null);
+  };
+
   return (
     <div className="px-4 lg:px-6">
-      {/* Test button outside the table to confirm onClick works */}
-      <Button onClick={() => alert("Test button clicked!")}>
-        Test Outside Button
-      </Button>
       <Card>
         <CardHeader>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -106,10 +158,21 @@ export default function ContactUs() {
               <Input
                 type="text"
                 placeholder="Search by name, email, or phone"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
                 className="w-full md:w-64"
               />
+              <Select onValueChange={setStatusFilter} value={statusFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter by Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="opened">Opened</SelectItem>
+                  <SelectItem value="waiting">Waiting</SelectItem>
+                  <SelectItem value="closed">Closed</SelectItem>
+                </SelectContent>
+              </Select>
               <Button
                 onClick={handleRefresh}
                 variant="outline"
@@ -152,10 +215,10 @@ export default function ContactUs() {
                 </div>
                 <div className="p-4 border rounded-lg">
                   <h3 className="font-semibold text-sm text-gray-600">
-                    Pending
+                    Waiting
                   </h3>
                   <p className="text-2xl font-bold text-yellow-600">
-                    {stats.pending}
+                    {stats.waiting}
                   </p>
                 </div>
                 <div className="p-4 border rounded-lg">
@@ -270,6 +333,16 @@ export default function ContactUs() {
                               {/* {updatingId === req.id ? "Closed..." : "Closed"} */}
                               Closed
                             </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              title="Delete"
+                              onClick={() => handleDelete(req.id)}
+                              disabled={deletingId === req.id}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <IconTrash className="h-4 w-4" />
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -337,7 +410,74 @@ export default function ContactUs() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         request={selectedRequest}
+        onOpenAction={(id) => handleUpdateStatus(id, "opened")}
+        onCloseAction={(id) => handleUpdateStatus(id, "closed")}
+        onDeleteAction={(id) => {
+          setRequestToDelete(requests.find((req) => req.id === id));
+          setDeleteDialogOpen(true);
+          handleCloseModal(); // Close the view modal when opening delete confirmation
+        }}
+        updatingStatus={
+          (updatingId || deletingId) &&
+          selectedRequest &&
+          (updatingId === selectedRequest.id ||
+            deletingId === selectedRequest.id)
+            ? {
+                requestId: updatingId || deletingId,
+                status: selectedRequest.status,
+              }
+            : null
+        }
       />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Contact Request</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the
+              contact request from the system.
+            </DialogDescription>
+          </DialogHeader>
+          {requestToDelete && (
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-sm text-gray-600">Request ID:</span>
+              <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                {requestToDelete.id}
+              </span>
+            </div>
+          )}
+          <div className="space-y-4">
+            <div>
+              Are you sure you want to delete the contact request from{" "}
+              <span className="font-bold">{requestToDelete?.name}</span>?
+            </div>
+            <div className="text-sm text-gray-600">
+              <strong>Email:</strong> {requestToDelete?.email}
+            </div>
+            <div className="text-sm text-gray-600">
+              <strong>Subject:</strong> {requestToDelete?.subject}
+            </div>
+          </div>
+          <DialogFooter className="mt-4 flex gap-2 justify-end">
+            <Button
+              variant="outline"
+              onClick={cancelDelete}
+              disabled={deletingId === requestToDelete?.id}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deletingId === requestToDelete?.id}
+            >
+              {deletingId === requestToDelete?.id ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
