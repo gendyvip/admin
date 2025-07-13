@@ -187,13 +187,77 @@ export default function ContactUs() {
           <div className="space-y-6">
             {/* Summary Cards */}
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {[1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    className="p-4 border rounded-lg animate-pulse h-20 bg-gray-100"
-                  />
-                ))}
+              <div>
+                {/* Summary Cards Skeleton */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="p-4 border rounded-lg bg-gray-100 animate-pulse flex flex-col gap-2"
+                    >
+                      <div className="h-4 w-1/3 bg-gray-300 rounded mb-2" />
+                      <div className="h-8 w-1/2 bg-gray-400 rounded" />
+                    </div>
+                  ))}
+                </div>
+                {/* Table Skeleton */}
+                <div className="border rounded-lg overflow-x-auto animate-pulse mb-4">
+                  <table className="min-w-full">
+                    <thead>
+                      <tr>
+                        {[...Array(6)].map((_, i) => (
+                          <th key={i} className="px-4 py-2">
+                            <div className="h-4 w-20 bg-gray-300 rounded" />
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[...Array(5)].map((_, row) => (
+                        <tr key={row}>
+                          {/* اسم */}
+                          <td className="px-4 py-4">
+                            <div className="h-4 w-32 bg-gray-200 rounded" />
+                          </td>
+                          {/* تواصل */}
+                          <td className="px-4 py-4">
+                            <div className="h-4 w-24 bg-gray-200 rounded" />
+                          </td>
+                          {/* موضوع */}
+                          <td className="px-4 py-4">
+                            <div className="h-4 w-28 bg-gray-200 rounded" />
+                          </td>
+                          {/* رسالة */}
+                          <td className="px-4 py-4">
+                            <div className="h-4 w-40 bg-gray-200 rounded" />
+                          </td>
+                          {/* حالة */}
+                          <td className="px-4 py-4">
+                            <div className="h-4 w-16 bg-gray-300 rounded" />
+                          </td>
+                          {/* أكشن */}
+                          <td className="px-4 py-4">
+                            <div className="flex gap-2">
+                              <div className="h-8 w-8 bg-gray-300 rounded" />
+                              <div className="h-8 w-8 bg-gray-300 rounded" />
+                              <div className="h-8 w-8 bg-gray-300 rounded" />
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Pagination Skeleton */}
+                <div className="flex justify-between items-center mt-4 gap-2">
+                  <div className="h-5 w-1/3 bg-gray-300 rounded" />
+                  <div className="flex gap-2">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="h-8 w-8 bg-gray-300 rounded" />
+                    ))}
+                    <div className="h-8 w-16 bg-blue-700 rounded" />
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

@@ -32,6 +32,22 @@ const usePharmaciesStore = create((set) => ({
       set({ error: error.message, loading: false });
     }
   },
+
+  deletePharmacy: async (pharmacyId) => {
+    set({ loading: true, error: null });
+    try {
+      await pharmaciesAPI.deletePharmacy(pharmacyId);
+      set((state) => ({
+        pharmacies: state.pharmacies.filter((p) => p.id !== pharmacyId),
+        loading: false,
+      }));
+    } catch (error) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  clearError: () => set({ error: null }),
 }));
 
 export default usePharmaciesStore;

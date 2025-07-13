@@ -23,6 +23,7 @@ import {
   IconUser,
   IconMapPin,
   IconMap,
+  IconTrash,
 } from "@tabler/icons-react";
 import {
   Dialog,
@@ -30,6 +31,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
@@ -45,13 +47,23 @@ import useDebounce from "../../hooks/use-debounce";
 import PharmacyModalView from "./pharmacyModalView.jsx";
 
 export default function Pharmacies() {
-  const { pharmacies, loading, error, pagination, search, fetchPharmacies } =
-    usePharmaciesStore();
+  const {
+    pharmacies,
+    loading,
+    error,
+    pagination,
+    search,
+    fetchPharmacies,
+    deletePharmacy,
+  } = usePharmaciesStore();
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearch = useDebounce(searchValue, 700);
   const [selectedPharmacy, setSelectedPharmacy] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [governorate, setGovernorate] = useState("all");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [pharmacyToDelete, setPharmacyToDelete] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
   const governorates = [
     "all",
@@ -113,6 +125,32 @@ export default function Pharmacies() {
     setSelectedPharmacy(null);
   };
 
+  // Handle delete pharmacy
+  const handleDelete = (pharmacy) => {
+    setPharmacyToDelete(pharmacy);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (pharmacyToDelete) {
+      setDeletingId(pharmacyToDelete.id);
+      try {
+        await deletePharmacy(pharmacyToDelete.id);
+        setDeleteDialogOpen(false);
+        setPharmacyToDelete(null);
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        setDeletingId(null);
+      }
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setPharmacyToDelete(null);
+  };
+
   // Filtering by governorate (frontend)
   const filteredPharmacies =
     governorate === "all"
@@ -131,6 +169,83 @@ export default function Pharmacies() {
     (p) => !p.deals || p.deals.length === 0
   ).length;
 
+  if (loading) {
+    return (
+      <div className="px-4 lg:px-6">
+        {/* Summary Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="p-4 border rounded-lg bg-gray-100 animate-pulse flex flex-col gap-2"
+            >
+              <div className="h-4 w-1/3 bg-gray-300 rounded mb-2" />
+              <div className="h-8 w-1/2 bg-gray-400 rounded" />
+            </div>
+          ))}
+        </div>
+        {/* Table Skeleton */}
+        <div className="border rounded-lg overflow-x-auto animate-pulse mb-4">
+          <table className="min-w-full">
+            <thead>
+              <tr>
+                {[...Array(7)].map((_, i) => (
+                  <th key={i} className="px-4 py-2">
+                    <div className="h-4 w-20 bg-gray-300 rounded" />
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[...Array(5)].map((_, row) => (
+                <tr key={row}>
+                  {/* اسم الصيدلية */}
+                  <td className="px-4 py-4">
+                    <div className="h-4 w-32 bg-gray-200 rounded" />
+                  </td>
+                  {/* رخصة */}
+                  <td className="px-4 py-4">
+                    <div className="h-4 w-20 bg-gray-200 rounded" />
+                  </td>
+                  {/* تليفون */}
+                  <td className="px-4 py-4">
+                    <div className="h-4 w-24 bg-gray-200 rounded" />
+                  </td>
+                  {/* مدينة */}
+                  <td className="px-4 py-4">
+                    <div className="h-4 w-16 bg-gray-200 rounded" />
+                  </td>
+                  {/* عدد عروض */}
+                  <td className="px-4 py-4">
+                    <div className="h-4 w-10 bg-gray-200 rounded" />
+                  </td>
+                  {/* زر اتجاه */}
+                  <td className="px-4 py-4">
+                    <div className="h-8 w-24 bg-gray-300 rounded" />
+                  </td>
+                  {/* أكشن */}
+                  <td className="px-4 py-4">
+                    <div className="flex gap-2">
+                      <div className="h-8 w-8 bg-gray-300 rounded" />
+                      <div className="h-8 w-8 bg-gray-300 rounded" />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {/* Pagination Skeleton */}
+        <div className="flex justify-end mt-4 gap-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-8 w-8 bg-gray-300 rounded" />
+          ))}
+          <div className="h-8 w-16 bg-blue-700 rounded" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="px-4 lg:px-6">
       <Card>
@@ -143,7 +258,7 @@ export default function Pharmacies() {
             <div className="flex flex-col md:flex-row gap-2 md:items-center">
               <Input
                 type="text"
-                placeholder="Search by pharmacy name"
+                placeholder="Search by owner name or phone"
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 className="w-full md:w-64"
@@ -273,6 +388,15 @@ export default function Pharmacies() {
                           >
                             <IconEye className="h-4 w-4" />
                           </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            title="Delete Pharmacy"
+                            onClick={() => handleDelete(pharmacy)}
+                            disabled={deletingId === pharmacy.id}
+                          >
+                            <IconTrash className="h-4 w-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -379,6 +503,57 @@ export default function Pharmacies() {
         onClose={handleCloseModal}
         pharmacy={selectedPharmacy}
       />
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Pharmacy</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the
+              pharmacy from the system.
+            </DialogDescription>
+          </DialogHeader>
+          {pharmacyToDelete && (
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-sm text-gray-600">Pharmacy ID:</span>
+              <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                {pharmacyToDelete.id}
+              </span>
+            </div>
+          )}
+          <div className="space-y-4">
+            <div>
+              Are you sure you want to delete{" "}
+              <span className="font-bold">{pharmacyToDelete?.name}</span>?
+            </div>
+            <div className="text-sm text-gray-600">
+              <strong>License Number:</strong> {pharmacyToDelete?.licenseNum}
+            </div>
+            <div className="text-sm text-gray-600">
+              <strong>City:</strong> {pharmacyToDelete?.city}
+            </div>
+            <div className="text-sm text-gray-600">
+              <strong>Phone:</strong> {pharmacyToDelete?.pharmacyPhone}
+            </div>
+          </div>
+          <DialogFooter className="mt-4 flex gap-2 justify-end">
+            <Button
+              variant="outline"
+              onClick={cancelDelete}
+              disabled={deletingId === pharmacyToDelete?.id}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deletingId === pharmacyToDelete?.id}
+            >
+              {deletingId === pharmacyToDelete?.id ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

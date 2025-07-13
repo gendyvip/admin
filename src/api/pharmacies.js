@@ -42,6 +42,26 @@ export const getAllPharmacies = async (page = 1, search = "") => {
   }
 };
 
+export const deletePharmacy = async (pharmacyId) => {
+  try {
+    const response = await pharmaciesAPI.delete(
+      `/admin/pharmacies/${pharmacyId}`
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw new Error(
+        error.response.data?.message || "Failed to delete pharmacy"
+      );
+    } else if (error.request) {
+      throw new Error("Server is not responding. Please try again later.");
+    } else {
+      throw error;
+    }
+  }
+};
+
 export default {
   getAllPharmacies,
+  deletePharmacy,
 };
