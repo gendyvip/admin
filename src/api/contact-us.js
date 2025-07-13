@@ -13,6 +13,7 @@ const contactUsAPI = axios.create({
 contactUsAPI.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
+    console.log("TOKEN SENT IN HEADER:", token); // Debug
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -43,6 +44,25 @@ export const contactUsService = {
       if (error.response) {
         throw new Error(
           error.response.data?.message || "Failed to fetch contact us requests"
+        );
+      } else if (error.request) {
+        throw new Error("Server is not responding. Please try again later.");
+      } else {
+        throw error;
+      }
+    }
+  },
+  // Add updateContactUsStatus
+  updateContactUsStatus: async (id, status) => {
+    try {
+      const response = await contactUsAPI.patch(`/contact-us/${id}/status`, {
+        status,
+      });
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        throw new Error(
+          error.response.data?.message || "Failed to update status"
         );
       } else if (error.request) {
         throw new Error("Server is not responding. Please try again later.");

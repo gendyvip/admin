@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { IconEye } from "@tabler/icons-react";
 import ContactModalView from "./ContactModalView";
 import useContactUsStore from "../../store/useContact-us";
+import { contactUsService } from "../../api/contact-us";
 
 export default function ContactUs() {
   const {
@@ -38,6 +39,7 @@ export default function ContactUs() {
   const [search, setSearch] = useState("");
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [updatingId, setUpdatingId] = useState(null);
 
   useEffect(() => {
     fetchContactUsRequests(1);
@@ -72,8 +74,25 @@ export default function ContactUs() {
     setSelectedRequest(null);
   };
 
+  // Clean and simple status update
+  const handleUpdateStatus = async (id, status) => {
+    setUpdatingId(id);
+    try {
+      await contactUsService.updateContactUsStatus(id, status);
+      await fetchContactUsRequests(pagination.page);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   return (
     <div className="px-4 lg:px-6">
+      {/* Test button outside the table to confirm onClick works */}
+      <Button onClick={() => alert("Test button clicked!")}>
+        Test Outside Button
+      </Button>
       <Card>
         <CardHeader>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -231,14 +250,24 @@ export default function ContactUs() {
                               size="sm"
                               variant="outline"
                               className="text-white bg-green-700 hover:bg-green-800 hover:text-white"
+                              onClick={() =>
+                                handleUpdateStatus(req.id, "opened")
+                              }
+                              disabled={updatingId === req.id}
                             >
+                              {/* {updatingId === req.id ? "Opened" : "Opened"} */}
                               Opened
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
                               className="text-white bg-red-600 hover:bg-red-700 hover:text-white"
+                              onClick={() =>
+                                handleUpdateStatus(req.id, "closed")
+                              }
+                              disabled={updatingId === req.id}
                             >
+                              {/* {updatingId === req.id ? "Closed..." : "Closed"} */}
                               Closed
                             </Button>
                           </div>
@@ -308,9 +337,6 @@ export default function ContactUs() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         request={selectedRequest}
-        onOpenAction={() => {}}
-        onCloseAction={() => {}}
-        updatingStatus={null}
       />
     </div>
   );
