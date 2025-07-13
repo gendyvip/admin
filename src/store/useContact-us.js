@@ -74,6 +74,60 @@ const useContactUsStore = create((set, get) => ({
     }
   },
 
+  // Update contact us status and refresh stats
+  updateContactUsStatus: async (id, status) => {
+    try {
+      set({ loading: true, error: null });
+      const response = await contactUsService.updateContactUsStatus(id, status);
+      if (response.success) {
+        // Update the request in the current list
+        set((state) => ({
+          requests: state.requests.map((req) =>
+            req.id === id ? { ...req, status } : req
+          ),
+          loading: false,
+        }));
+
+        // Refresh status counts
+        await get().fetchStatusCounts();
+      } else {
+        set({
+          error: response.message || "Failed to update status",
+          loading: false,
+        });
+      }
+    } catch (error) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  // Delete contact us request and refresh stats
+  deleteContactUsRequest: async (id) => {
+    try {
+      set({ loading: true, error: null });
+      const response = await contactUsService.deleteContactUsRequest(id);
+      if (response.success) {
+        // Remove the request from the current list
+        set((state) => ({
+          requests: state.requests.filter((req) => req.id !== id),
+          loading: false,
+        }));
+
+        // Refresh status counts
+        await get().fetchStatusCounts();
+      } else {
+        set({
+          error: response.message || "Failed to delete request",
+          loading: false,
+        });
+      }
+    } catch (error) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
   // Refresh data (requests + stats)
   refreshData: async (page) => {
     await get().fetchContactUsRequests(page || get().pagination.page);

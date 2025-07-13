@@ -36,7 +36,6 @@ import {
 } from "@/components/ui/select";
 import ContactModalView from "./ContactModalView";
 import useContactUsStore from "../../store/useContact-us";
-import { contactUsService } from "../../api/contact-us";
 import useDebounce from "../../hooks/use-debounce";
 
 export default function ContactUs() {
@@ -50,6 +49,8 @@ export default function ContactUs() {
     fetchStatusCounts,
     refreshData,
     clearError,
+    updateContactUsStatus,
+    deleteContactUsRequest,
   } = useContactUsStore();
 
   const [searchValue, setSearchValue] = useState("");
@@ -102,8 +103,7 @@ export default function ContactUs() {
   const handleUpdateStatus = async (id, status) => {
     setUpdatingId(id);
     try {
-      await contactUsService.updateContactUsStatus(id, status);
-      await fetchContactUsRequests(pagination.page, debouncedSearch);
+      await updateContactUsStatus(id, status);
     } catch (err) {
       alert(err.message);
     } finally {
@@ -121,9 +121,7 @@ export default function ContactUs() {
     if (requestToDelete) {
       setDeletingId(requestToDelete.id);
       try {
-        await contactUsService.deleteContactUsRequest(requestToDelete.id);
-        await fetchContactUsRequests(pagination.page, debouncedSearch);
-        await fetchStatusCounts();
+        await deleteContactUsRequest(requestToDelete.id);
         // Close modal if the deleted request was open
         if (selectedRequest && selectedRequest.id === requestToDelete.id) {
           handleCloseModal();
@@ -218,7 +216,7 @@ export default function ContactUs() {
                     Waiting
                   </h3>
                   <p className="text-2xl font-bold text-yellow-600">
-                    {stats.waiting}
+                    {stats.waiting || 0}
                   </p>
                 </div>
                 <div className="p-4 border rounded-lg">

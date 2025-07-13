@@ -97,7 +97,7 @@ export default function Ads() {
       setUpdatingStatus({ requestId, status });
       await updateRequestStatus(requestId, status);
       setSelectedRequest(null); // أغلق المودال بعد العملية
-      setForceUpdate(f => f + 1); // إجبار إعادة الرسم بعد التحديث
+      setForceUpdate((f) => f + 1); // إجبار إعادة الرسم بعد التحديث
     } catch (error) {
       // error handling
     } finally {
@@ -112,7 +112,7 @@ export default function Ads() {
       await deleteRequest(requestId);
       setSelectedRequest(null); // أغلق المودال ويحدث البيانات تلقائيًا
       clearError(); // صفّر رسالة الخطأ بعد الحذف الناجح
-      setForceUpdate(f => f + 1); // إجبار إعادة الرسم بعد الحذف
+      setForceUpdate((f) => f + 1); // إجبار إعادة الرسم بعد الحذف
     } catch (error) {
       // يمكنك هنا فقط عرض رسالة خطأ إذا أردت
     } finally {
@@ -144,7 +144,7 @@ export default function Ads() {
   }, [search, fetchAdRequests]);
 
   useEffect(() => {
-    if (selectedRequest && !adRequests.find(r => r.id === selectedRequest)) {
+    if (selectedRequest && !adRequests.find((r) => r.id === selectedRequest)) {
       setSelectedRequest(null);
     }
   }, [adRequests, selectedRequest]);
@@ -230,12 +230,18 @@ export default function Ads() {
             {/* Summary Cards */}
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {[1,2,3,4].map(i => (
-                  <div key={i} className="p-4 border rounded-lg animate-pulse h-20 bg-gray-100" />
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="p-4 border rounded-lg animate-pulse h-20 bg-gray-100"
+                  />
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4" key={forceUpdate}>
+              <div
+                className="grid grid-cols-1 md:grid-cols-4 gap-4"
+                key={forceUpdate}
+              >
                 <div className="p-4 border rounded-lg">
                   <h3 className="font-semibold text-sm text-gray-600">
                     Total Requests
@@ -251,7 +257,9 @@ export default function Ads() {
                   </p>
                 </div>
                 <div className="p-4 border rounded-lg">
-                  <h3 className="font-semibold text-sm text-gray-600">Waiting</h3>
+                  <h3 className="font-semibold text-sm text-gray-600">
+                    Waiting
+                  </h3>
                   <p className="text-2xl font-bold text-yellow-600">
                     {stats.waiting}
                   </p>
@@ -339,46 +347,56 @@ export default function Ads() {
                           >
                             <IconEye className="h-4 w-4" />
                           </Button>
-                          {request.status !== "accepted" &&
-                            updatingStatus?.requestId !== request.id && (
-                              <Button
-                                className="bg-green-800 hover:bg-green-900 hover:text-white text-white"
-                                size="sm"
-                                variant="outline"
-                                title="Accept"
-                                onClick={() =>
-                                  handleStatusUpdate(request.id, "accepted")
-                                }
-                                disabled={
-                                  updatingStatus?.requestId === request.id
-                                }
-                              >
-                                {updatingStatus?.requestId === request.id &&
-                                updatingStatus?.status === "accepted"
-                                  ? "Updating..."
-                                  : "Accept"}
-                              </Button>
-                            )}
-                          {request.status !== "rejected" &&
-                            updatingStatus?.requestId !== request.id && (
-                              <Button
-                                className="bg-red-500 hover:bg-red-700 hover:text-white text-white"
-                                size="sm"
-                                variant="outline"
-                                title="Reject"
-                                onClick={() =>
-                                  handleStatusUpdate(request.id, "rejected")
-                                }
-                                disabled={
-                                  updatingStatus?.requestId === request.id
-                                }
-                              >
-                                {updatingStatus?.requestId === request.id &&
-                                updatingStatus?.status === "rejected"
-                                  ? "Updating..."
-                                  : "Reject"}
-                              </Button>
-                            )}
+                          <Button
+                            className={`${
+                              request.status === "accepted"
+                                ? "bg-green-800 hover:bg-green-900 hover:text-white text-white  "
+                                : "bg-green-800 hover:bg-green-900 hover:text-white text-white"
+                            }`}
+                            size="sm"
+                            variant="outline"
+                            title={
+                              request.status === "accepted"
+                                ? "Already Accepted"
+                                : "Accept"
+                            }
+                            onClick={() =>
+                              handleStatusUpdate(request.id, "accepted")
+                            }
+                            disabled={updatingStatus?.requestId === request.id}
+                          >
+                            {updatingStatus?.requestId === request.id &&
+                            updatingStatus?.status === "accepted"
+                              ? "Updating..."
+                              : request.status === "accepted"
+                              ? "Accept"
+                              : "Accept"}
+                          </Button>
+                          <Button
+                            className={`${
+                              request.status === "rejected"
+                                ? "bg-red-600 text-white"
+                                : "bg-red-500 hover:bg-red-700 hover:text-white text-white"
+                            }`}
+                            size="sm"
+                            variant="outline"
+                            title={
+                              request.status === "rejected"
+                                ? "Already Rejected"
+                                : "Reject"
+                            }
+                            onClick={() =>
+                              handleStatusUpdate(request.id, "rejected")
+                            }
+                            disabled={updatingStatus?.requestId === request.id}
+                          >
+                            {updatingStatus?.requestId === request.id &&
+                            updatingStatus?.status === "rejected"
+                              ? "Updating..."
+                              : request.status === "rejected"
+                              ? "Reject"
+                              : "Reject"}
+                          </Button>
                           <Button
                             size="sm"
                             variant="outline"
@@ -440,7 +458,7 @@ export default function Ads() {
       <AdsModalView
         isOpen={!!selectedRequest}
         onClose={handleCloseModal}
-        request={adRequests.find(r => r.id === selectedRequest) || null}
+        request={adRequests.find((r) => r.id === selectedRequest) || null}
         onAccept={(id) => handleStatusUpdate(id, "accepted")}
         onReject={(id) => handleStatusUpdate(id, "rejected")}
         onDelete={handleDelete}
