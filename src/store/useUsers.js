@@ -46,6 +46,7 @@ const useUsersStore = create((set, get) => ({
 
       if (response.message === "success") {
         const users = response.data.users || [];
+
         set({
           users,
           pagination: {

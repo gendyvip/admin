@@ -72,7 +72,8 @@ export default function Users() {
   // Fetch users and stats on component mount
   useEffect(() => {
     const role = roleFilter === "all" ? "" : roleFilter;
-    const status = statusFilter === "all" ? "" : statusFilter;
+    const status = mapStatusFilter(statusFilter);
+
     fetchUsers({
       page: currentPage,
       search: searchTerm,
@@ -125,7 +126,8 @@ export default function Users() {
 
   const handleRefresh = () => {
     const role = roleFilter === "all" ? "" : roleFilter;
-    const status = statusFilter === "all" ? "" : statusFilter;
+    const status = mapStatusFilter(statusFilter);
+
     fetchUsers({
       page: currentPage,
       search: searchTerm,
@@ -148,7 +150,8 @@ export default function Users() {
 
       // Refresh the users list to get updated data
       const role = roleFilter === "all" ? "" : roleFilter;
-      const status = statusFilter === "all" ? "" : statusFilter;
+      const status = mapStatusFilter(statusFilter);
+
       fetchUsers({
         page: currentPage,
         search: searchTerm,
@@ -189,7 +192,8 @@ export default function Users() {
 
       // Refresh the users list to get updated data
       const role = roleFilter === "all" ? "" : roleFilter;
-      const status = statusFilter === "all" ? "" : statusFilter;
+      const status = mapStatusFilter(statusFilter);
+
       fetchUsers({
         page: currentPage,
         search: searchTerm,
@@ -243,6 +247,16 @@ export default function Users() {
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  // Helper function to map frontend status to backend status
+  const mapStatusFilter = (statusFilter) => {
+    if (statusFilter === "all") return "";
+    if (statusFilter === "verified") return "verified";
+    if (statusFilter === "ai_verified") return "ai_verified";
+    if (statusFilter === "blocked") return "blocked";
+    if (statusFilter === "unverified") return "unverified";
+    return statusFilter;
   };
 
   // Skeleton loading component
@@ -409,6 +423,8 @@ export default function Users() {
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="verified">Verified</SelectItem>
+                <SelectItem value="ai_verified">AI Verified</SelectItem>
+                <SelectItem value="blocked">Blocked</SelectItem>
                 <SelectItem value="unverified">Unverified</SelectItem>
               </SelectContent>
             </Select>

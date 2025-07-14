@@ -54,7 +54,18 @@ export const usersService = {
       }
 
       if (status && status.trim() !== "") {
-        url += `&status=${encodeURIComponent(status)}`;
+        // Map frontend status values to backend values
+        let backendStatus = status;
+        if (status === "verified") {
+          backendStatus = "verified";
+        } else if (status === "ai_verified") {
+          backendStatus = "ai_verified";
+        } else if (status === "blocked") {
+          backendStatus = "blocked";
+        } else if (status === "unverified") {
+          backendStatus = "unverified";
+        }
+        url += `&status=${encodeURIComponent(backendStatus)}`;
       }
 
       const response = await usersAPI.get(url);
