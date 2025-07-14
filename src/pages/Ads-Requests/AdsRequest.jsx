@@ -57,7 +57,7 @@ const getStatusBadge = (status) => {
   );
 };
 
-export default function Ads() {
+export default function AdsRequest() {
   // Zustand store
   const {
     adRequests,
@@ -153,7 +153,6 @@ export default function Ads() {
     fetchAdRequests(newPage, "status");
   };
 
-  // Loading skeleton
   if (loading) {
     return (
       <div className="px-4 lg:px-6">
@@ -311,7 +310,7 @@ export default function Ads() {
             )}
 
             {/* Requests Table */}
-            <div className="rounded-md border">
+            <div className="border rounded-lg">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -323,153 +322,182 @@ export default function Ads() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredRequests.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">
-                        <div className="text-muted-foreground">
-                          No advertisement requests found
+                  {filteredRequests.map((request) => (
+                    <TableRow key={request.id}>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium max-w-xs">
+                            {request.fullName.length > 20 ? (
+                              <div
+                                className="truncate"
+                                title={request.fullName}
+                              >
+                                {request.fullName.substring(0, 20)}...
+                              </div>
+                            ) : (
+                              <div>{request.fullName}</div>
+                            )}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            ID: {request.id.slice(0, 8)}...
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="text-sm max-w-xs">
+                            {request.email.length > 25 ? (
+                              <div className="truncate" title={request.email}>
+                                {request.email.substring(0, 25)}...
+                              </div>
+                            ) : (
+                              <div>{request.email}</div>
+                            )}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {request.phone}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="max-w-xs">
+                          {request.content.length > 20 ? (
+                            <div className="truncate" title={request.content}>
+                              {request.content.substring(0, 20)}...
+                            </div>
+                          ) : (
+                            <div>{request.content}</div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>{getStatusBadge(request.status)}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            title="View Details"
+                            onClick={() => handleViewRequest(request)}
+                          >
+                            <IconEye className="h-4 w-4" />
+                          </Button>
+                              <Button
+                            className={`${
+                              request.status === "accepted"
+                                ? "bg-green-800 hover:bg-green-900 hover:text-white text-white  "
+                                : "bg-green-800 hover:bg-green-900 hover:text-white text-white"
+                            }`}
+                                size="sm"
+                                variant="outline"
+                            title={
+                              request.status === "accepted"
+                                ? "Already Accepted"
+                                : "Accept"
+                            }
+                                onClick={() =>
+                                  handleStatusUpdate(request.id, "accepted")
+                                }
+                            disabled={updatingStatus?.requestId === request.id}
+                              >
+                                {updatingStatus?.requestId === request.id &&
+                                updatingStatus?.status === "accepted"
+                                  ? "Updating..."
+                              : request.status === "accepted"
+                              ? "Accept"
+                                  : "Accept"}
+                              </Button>
+                              <Button
+                            className={`${
+                              request.status === "rejected"
+                                ? "bg-red-600 text-white"
+                                : "bg-red-500 hover:bg-red-700 hover:text-white text-white"
+                            }`}
+                                size="sm"
+                                variant="outline"
+                            title={
+                              request.status === "rejected"
+                                ? "Already Rejected"
+                                : "Reject"
+                            }
+                                onClick={() =>
+                                  handleStatusUpdate(request.id, "rejected")
+                                }
+                            disabled={updatingStatus?.requestId === request.id}
+                              >
+                                {updatingStatus?.requestId === request.id &&
+                                updatingStatus?.status === "rejected"
+                                  ? "Updating..."
+                              : request.status === "rejected"
+                              ? "Reject"
+                                  : "Reject"}
+                              </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 hover:text-red-700"
+                            title="Delete"
+                            onClick={() => handleDelete(request.id)}
+                            disabled={updatingStatus?.requestId === request.id}
+                          >
+                            <IconTrash className="h-4 w-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
-                  ) : (
-                    filteredRequests.map((request) => (
-                      <TableRow key={request.id}>
-                        <TableCell>
-                          <div className="font-medium">{request.name}</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="text-sm">{request.email}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {request.phone}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="max-w-xs truncate">
-                            {request.content}
-                          </div>
-                        </TableCell>
-                        <TableCell>{getStatusBadge(request.status)}</TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleViewRequest(request)}
-                            >
-                              <IconEye className="h-4 w-4" />
-                            </Button>
-                            {request.status === "waiting" && (
-                              <>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleStatusUpdate(request.id, "accepted")}
-                                  disabled={
-                                    updatingStatus?.requestId === request.id &&
-                                    updatingStatus?.status === "accepted"
-                                  }
-                                  className="bg-green-700 text-white hover:bg-green-800 hover:text-white"
-                                >
-                                  {updatingStatus?.requestId === request.id &&
-                                  updatingStatus?.status === "accepted"
-                                    ? "Accepting..."
-                                    : "Accept"}
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleStatusUpdate(request.id, "rejected")}
-                                  disabled={
-                                    updatingStatus?.requestId === request.id &&
-                                    updatingStatus?.status === "rejected"
-                                  }
-                                  className="bg-red-500 text-white hover:bg-red-600 hover:text-white"
-                                >
-                                  {updatingStatus?.requestId === request.id &&
-                                  updatingStatus?.status === "rejected"
-                                    ? "Rejecting..."
-                                    : "Reject"}
-                                </Button>
-                              </>
-                            )}
-                            {(request.status === "accepted" || request.status === "rejected") && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDelete(request.id)}
-                                disabled={
-                                  updatingStatus?.requestId === request.id &&
-                                  updatingStatus?.status === "delete"
-                                }
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <IconTrash className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
+                  ))}
                 </TableBody>
               </Table>
             </div>
 
             {/* Pagination */}
-            {pagination.totalPages > 1 && (
+            <div className="mt-6 flex justify-center">
               <Pagination>
                 <PaginationContent>
                   <PaginationItem>
                     <PaginationPrevious
-                      onClick={() => handlePageChange(pagination.page - 1)}
-                      className={
-                        pagination.page <= 1
-                          ? "pointer-events-none opacity-50"
-                          : "cursor-pointer"
+                      onClick={() =>
+                        pagination.page > 1 &&
+                        handlePageChange(pagination.page - 1)
                       }
+                      aria-disabled={pagination.page === 1}
                     />
                   </PaginationItem>
-                  {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(
-                    (page) => (
-                      <PaginationItem key={page}>
-                        <PaginationLink
-                          onClick={() => handlePageChange(page)}
-                          isActive={page === pagination.page}
-                          className="cursor-pointer"
-                        >
-                          {page}
-                        </PaginationLink>
-                      </PaginationItem>
-                    )
-                  )}
+                  {Array.from({ length: pagination.totalPages }, (_, i) => (
+                    <PaginationItem key={i}>
+                      <PaginationLink
+                        isActive={pagination.page === i + 1}
+                        onClick={() => handlePageChange(i + 1)}
+                      >
+                        {i + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
                   <PaginationItem>
                     <PaginationNext
-                      onClick={() => handlePageChange(pagination.page + 1)}
-                      className={
-                        pagination.page >= pagination.totalPages
-                          ? "pointer-events-none opacity-50"
-                          : "cursor-pointer"
+                      onClick={() =>
+                        pagination.page < pagination.totalPages &&
+                        handlePageChange(pagination.page + 1)
                       }
+                      aria-disabled={pagination.page === pagination.totalPages}
                     />
                   </PaginationItem>
                 </PaginationContent>
               </Pagination>
-            )}
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Modal */}
+      {/* Modal for viewing request details */}
       <AdsModalView
-        isOpen={isModalOpen}
+        isOpen={!!selectedRequest}
         onClose={handleCloseModal}
-        requestId={selectedRequest}
-        onStatusUpdate={handleStatusUpdate}
+        request={adRequests.find((r) => r.id === selectedRequest) || null}
+        onAccept={(id) => handleStatusUpdate(id, "accepted")}
+        onReject={(id) => handleStatusUpdate(id, "rejected")}
         onDelete={handleDelete}
         updatingStatus={updatingStatus}
       />
     </div>
   );
-} 
+}

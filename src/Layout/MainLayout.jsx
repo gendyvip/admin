@@ -7,7 +7,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 // Lazy load all page components with better error handling
 const Dashboard = React.lazy(() => import("../pages/Dashboard/Dashboard"));
 const Users = React.lazy(() => import("../pages/Users/Users"));
-const Ads = React.lazy(() => import("../pages/Ads/ads"));
+const AdsRequest = React.lazy(() => import("../pages/Ads-Requests/AdsRequest"));
 const Login = React.lazy(() => import("../pages/Login/Login"));
 const ContactUs = React.lazy(() => import("../pages/Contact-us/ContactUs"));
 const Drugs = React.lazy(() => import("../pages/Drugs/Drugs"));
@@ -111,7 +111,7 @@ export default function MainLayout() {
             element={
               <ProtectedRoute>
                 <AppLayout>
-                  <Ads />
+                  <AdsRequest />
                 </AppLayout>
               </ProtectedRoute>
             }
