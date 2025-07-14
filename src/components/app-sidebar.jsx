@@ -7,6 +7,7 @@ import {
   IconFileAi,
   IconFileDescription,
   IconHelp,
+  IconPhotoEdit,
   IconReport,
   IconSearch,
   IconSettings,
@@ -81,6 +82,11 @@ const data = {
       title: "Contact",
       url: "/contact",
       icon: IconUsers,
+    },
+    {
+      title: "Ads Creation",
+      url: "/ads-creation",
+      icon: IconPhotoEdit,
     },
   ],
   navClouds: [

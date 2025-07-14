@@ -36,6 +36,16 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 import useAdsRequestStore from "../../store/useAds-Request";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { useRef } from "react";
+import DatePicker from "@/components/ui/date-picker";
 
 // Status badge configuration
 const getStatusBadge = (status) => {
@@ -80,6 +90,9 @@ export default function AdsRequest() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [updatingStatus, setUpdatingStatus] = useState(null);
   const [forceUpdate, setForceUpdate] = useState(0);
+  const [createAdModalOpen, setCreateAdModalOpen] = useState(false);
+  const [adForm, setAdForm] = useState(null);
+  const imageInputRef = useRef();
 
   // فتح المودال
   const handleViewRequest = (request) => {
@@ -120,6 +133,41 @@ export default function AdsRequest() {
     }
   };
 
+  // Open create ad modal with request data
+  const handleOpenCreateAd = (request) => {
+    setAdForm({
+      title: request.title || "",
+      companyName: request.companyName || "",
+      imageAlt: request.imageAlt || "",
+      status: true,
+      startDate: "",
+      endDate: "",
+      targetPosition: "",
+      image: null,
+    });
+    setCreateAdModalOpen(true);
+  };
+
+  // Handle form field changes
+  const handleAdFormChange = (e) => {
+    const { name, value, type, files, checked } = e.target;
+    if (type === "file") {
+      setAdForm((prev) => ({ ...prev, [name]: files[0] }));
+    } else if (type === "checkbox") {
+      setAdForm((prev) => ({ ...prev, [name]: checked }));
+    } else {
+      setAdForm((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  // Submit create ad
+  const handleCreateAd = async (e) => {
+    e.preventDefault();
+    // TODO: Call your createAd API/store here with adForm
+    setCreateAdModalOpen(false);
+    setAdForm(null);
+  };
+
   // Filtered requests (status filter only applies to current page data)
   const filteredRequests = adRequests.filter((req) => {
     return statusFilter === "all" ? true : req.status === statusFilter;
@@ -158,8 +206,11 @@ export default function AdsRequest() {
       <div className="px-4 lg:px-6">
         {/* Summary Cards Skeleton */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          {[1,2,3,4].map(i => (
-            <div key={i} className="p-4 border rounded-lg bg-gray-100 animate-pulse flex flex-col gap-2">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="p-4 border rounded-lg bg-gray-100 animate-pulse flex flex-col gap-2"
+            >
               <div className="h-4 w-1/3 bg-gray-300 rounded mb-2" />
               <div className="h-8 w-1/2 bg-gray-400 rounded" />
             </div>
@@ -170,24 +221,40 @@ export default function AdsRequest() {
           <table className="min-w-full">
             <thead>
               <tr>
-                {[...Array(5)].map((_,i) => (
-                  <th key={i} className="px-4 py-2"><div className="h-4 w-20 bg-gray-300 rounded" /></th>
+                {[...Array(5)].map((_, i) => (
+                  <th key={i} className="px-4 py-2">
+                    <div className="h-4 w-20 bg-gray-300 rounded" />
+                  </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {[...Array(5)].map((_,row) => (
+              {[...Array(5)].map((_, row) => (
                 <tr key={row}>
                   {/* اسم */}
-                  <td className="px-4 py-4"><div className="h-4 w-32 bg-gray-200 rounded" /></td>
+                  <td className="px-4 py-4">
+                    <div className="h-4 w-32 bg-gray-200 rounded" />
+                  </td>
                   {/* تواصل */}
-                  <td className="px-4 py-4"><div className="h-4 w-24 bg-gray-200 rounded" /></td>
+                  <td className="px-4 py-4">
+                    <div className="h-4 w-24 bg-gray-200 rounded" />
+                  </td>
                   {/* محتوى */}
-                  <td className="px-4 py-4"><div className="h-4 w-40 bg-gray-200 rounded" /></td>
+                  <td className="px-4 py-4">
+                    <div className="h-4 w-40 bg-gray-200 rounded" />
+                  </td>
                   {/* حالة */}
-                  <td className="px-4 py-4"><div className="h-4 w-16 bg-gray-300 rounded" /></td>
+                  <td className="px-4 py-4">
+                    <div className="h-4 w-16 bg-gray-300 rounded" />
+                  </td>
                   {/* أكشن */}
-                  <td className="px-4 py-4"><div className="flex gap-2"><div className="h-8 w-8 bg-gray-300 rounded" /><div className="h-8 w-8 bg-gray-300 rounded" /><div className="h-8 w-8 bg-gray-300 rounded" /></div></td>
+                  <td className="px-4 py-4">
+                    <div className="flex gap-2">
+                      <div className="h-8 w-8 bg-gray-300 rounded" />
+                      <div className="h-8 w-8 bg-gray-300 rounded" />
+                      <div className="h-8 w-8 bg-gray-300 rounded" />
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -195,7 +262,7 @@ export default function AdsRequest() {
         </div>
         {/* Pagination Skeleton */}
         <div className="flex justify-center mt-6 gap-2">
-          {[1,2,3,4,5].map(i => (
+          {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="h-8 w-8 bg-gray-300 rounded" />
           ))}
           <div className="h-8 w-16 bg-blue-700 rounded" />
@@ -319,6 +386,7 @@ export default function AdsRequest() {
                     <TableHead>Content</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
+                    <TableHead>Create Ad</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -381,56 +449,56 @@ export default function AdsRequest() {
                           >
                             <IconEye className="h-4 w-4" />
                           </Button>
-                              <Button
+                          <Button
                             className={`${
                               request.status === "accepted"
                                 ? "bg-green-800 hover:bg-green-900 hover:text-white text-white  "
                                 : "bg-green-800 hover:bg-green-900 hover:text-white text-white"
                             }`}
-                                size="sm"
-                                variant="outline"
+                            size="sm"
+                            variant="outline"
                             title={
                               request.status === "accepted"
                                 ? "Already Accepted"
                                 : "Accept"
                             }
-                                onClick={() =>
-                                  handleStatusUpdate(request.id, "accepted")
-                                }
+                            onClick={() =>
+                              handleStatusUpdate(request.id, "accepted")
+                            }
                             disabled={updatingStatus?.requestId === request.id}
-                              >
-                                {updatingStatus?.requestId === request.id &&
-                                updatingStatus?.status === "accepted"
-                                  ? "Updating..."
+                          >
+                            {updatingStatus?.requestId === request.id &&
+                            updatingStatus?.status === "accepted"
+                              ? "Updating..."
                               : request.status === "accepted"
                               ? "Accept"
-                                  : "Accept"}
-                              </Button>
-                              <Button
+                              : "Accept"}
+                          </Button>
+                          <Button
                             className={`${
                               request.status === "rejected"
                                 ? "bg-red-600 text-white"
                                 : "bg-red-500 hover:bg-red-700 hover:text-white text-white"
                             }`}
-                                size="sm"
-                                variant="outline"
+                            size="sm"
+                            variant="outline"
                             title={
                               request.status === "rejected"
                                 ? "Already Rejected"
                                 : "Reject"
                             }
-                                onClick={() =>
-                                  handleStatusUpdate(request.id, "rejected")
-                                }
+                            onClick={() =>
+                              handleStatusUpdate(request.id, "rejected")
+                            }
                             disabled={updatingStatus?.requestId === request.id}
-                              >
-                                {updatingStatus?.requestId === request.id &&
-                                updatingStatus?.status === "rejected"
-                                  ? "Updating..."
+                          >
+                            {updatingStatus?.requestId === request.id &&
+                            updatingStatus?.status === "rejected"
+                              ? "Updating..."
                               : request.status === "rejected"
                               ? "Reject"
-                                  : "Reject"}
-                              </Button>
+                              : "Reject"}
+                          </Button>
                           <Button
                             size="sm"
                             variant="outline"
@@ -442,6 +510,16 @@ export default function AdsRequest() {
                             <IconTrash className="h-4 w-4" />
                           </Button>
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          variant="default"
+                          title="Create Ad"
+                          onClick={() => handleOpenCreateAd(request)}
+                        >
+                          Create Ad
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -487,6 +565,129 @@ export default function AdsRequest() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Create Ad Modal */}
+      <Dialog
+        open={createAdModalOpen}
+        onOpenChange={() => setCreateAdModalOpen(false)}
+      >
+        <DialogContent className="max-w-lg w-full">
+          <DialogHeader>
+            <DialogTitle>Create Advertisement</DialogTitle>
+            <DialogDescription>
+              Fill in the details to create a new advertisement
+            </DialogDescription>
+          </DialogHeader>
+          {adForm && (
+            <form onSubmit={handleCreateAd} className="space-y-4">
+              <div>
+                <label className="block font-semibold mb-1">Title</label>
+                <Input
+                  name="title"
+                  value={adForm.title}
+                  onChange={handleAdFormChange}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-semibold mb-1">Company Name</label>
+                <Input
+                  name="companyName"
+                  value={adForm.companyName}
+                  onChange={handleAdFormChange}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-semibold mb-1">Image Alt</label>
+                <Input
+                  name="imageAlt"
+                  value={adForm.imageAlt}
+                  onChange={handleAdFormChange}
+                />
+              </div>
+              <div>
+                <label className="block font-semibold mb-1">Status</label>
+                <select
+                  name="status"
+                  value={adForm.status ? "true" : "false"}
+                  onChange={handleAdFormChange}
+                  className="w-full border rounded px-2 py-1"
+                >
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              </div>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label className="block font-semibold mb-1">Start Date</label>
+                  <DatePicker
+                    value={
+                      adForm.startDate ? new Date(adForm.startDate) : undefined
+                    }
+                    onChange={(date) =>
+                      setAdForm((prev) => ({
+                        ...prev,
+                        startDate: date ? date.toISOString().slice(0, 10) : "",
+                      }))
+                    }
+                    label={null}
+                    placeholder="Select start date"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block font-semibold mb-1">End Date</label>
+                  <DatePicker
+                    value={
+                      adForm.endDate ? new Date(adForm.endDate) : undefined
+                    }
+                    onChange={(date) =>
+                      setAdForm((prev) => ({
+                        ...prev,
+                        endDate: date ? date.toISOString().slice(0, 10) : "",
+                      }))
+                    }
+                    label={null}
+                    placeholder="Select end date"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block font-semibold mb-1">
+                  Target Position
+                </label>
+                <Input
+                  name="targetPosition"
+                  value={adForm.targetPosition}
+                  onChange={handleAdFormChange}
+                />
+              </div>
+              <div>
+                <label className="block font-semibold mb-1">Image</label>
+                <Input
+                  type="file"
+                  name="image"
+                  accept="image/*"
+                  ref={imageInputRef}
+                  onChange={handleAdFormChange}
+                />
+              </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setCreateAdModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" variant="default">
+                  Create
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Modal for viewing request details */}
       <AdsModalView

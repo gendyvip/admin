@@ -8,6 +8,9 @@ import ProtectedRoute from "../components/ProtectedRoute";
 const Dashboard = React.lazy(() => import("../pages/Dashboard/Dashboard"));
 const Users = React.lazy(() => import("../pages/Users/Users"));
 const AdsRequest = React.lazy(() => import("../pages/Ads-Requests/AdsRequest"));
+const AdsCreation = React.lazy(() =>
+  import("../pages/Ads-Creation/AdsCreation")
+);
 const Login = React.lazy(() => import("../pages/Login/Login"));
 const ContactUs = React.lazy(() => import("../pages/Contact-us/ContactUs"));
 const Drugs = React.lazy(() => import("../pages/Drugs/Drugs"));
@@ -162,6 +165,16 @@ export default function MainLayout() {
               <ProtectedRoute>
                 <AppLayout>
                   <ListedPharmacies />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ads-creation"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <AdsCreation />
                 </AppLayout>
               </ProtectedRoute>
             }
