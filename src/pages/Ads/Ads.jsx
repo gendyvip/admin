@@ -381,56 +381,56 @@ export default function Ads() {
                           >
                             <IconEye className="h-4 w-4" />
                           </Button>
-                          <Button
+                              <Button
                             className={`${
                               request.status === "accepted"
                                 ? "bg-green-800 hover:bg-green-900 hover:text-white text-white  "
                                 : "bg-green-800 hover:bg-green-900 hover:text-white text-white"
                             }`}
-                            size="sm"
-                            variant="outline"
+                                size="sm"
+                                variant="outline"
                             title={
                               request.status === "accepted"
                                 ? "Already Accepted"
                                 : "Accept"
                             }
-                            onClick={() =>
-                              handleStatusUpdate(request.id, "accepted")
-                            }
+                                onClick={() =>
+                                  handleStatusUpdate(request.id, "accepted")
+                                }
                             disabled={updatingStatus?.requestId === request.id}
-                          >
-                            {updatingStatus?.requestId === request.id &&
-                            updatingStatus?.status === "accepted"
-                              ? "Updating..."
+                              >
+                                {updatingStatus?.requestId === request.id &&
+                                updatingStatus?.status === "accepted"
+                                  ? "Updating..."
                               : request.status === "accepted"
                               ? "Accept"
-                              : "Accept"}
-                          </Button>
-                          <Button
+                                  : "Accept"}
+                              </Button>
+                              <Button
                             className={`${
                               request.status === "rejected"
                                 ? "bg-red-600 text-white"
                                 : "bg-red-500 hover:bg-red-700 hover:text-white text-white"
                             }`}
-                            size="sm"
-                            variant="outline"
+                                size="sm"
+                                variant="outline"
                             title={
                               request.status === "rejected"
                                 ? "Already Rejected"
                                 : "Reject"
                             }
-                            onClick={() =>
-                              handleStatusUpdate(request.id, "rejected")
-                            }
+                                onClick={() =>
+                                  handleStatusUpdate(request.id, "rejected")
+                                }
                             disabled={updatingStatus?.requestId === request.id}
-                          >
-                            {updatingStatus?.requestId === request.id &&
-                            updatingStatus?.status === "rejected"
-                              ? "Updating..."
+                              >
+                                {updatingStatus?.requestId === request.id &&
+                                updatingStatus?.status === "rejected"
+                                  ? "Updating..."
                               : request.status === "rejected"
                               ? "Reject"
-                              : "Reject"}
-                          </Button>
+                                  : "Reject"}
+                              </Button>
                           <Button
                             size="sm"
                             variant="outline"
