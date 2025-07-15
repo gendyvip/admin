@@ -295,10 +295,18 @@ export default function AdsCreation() {
     setShowDateModal(false);
     toast.loading("Updating advertisement with new dates...");
 
+    // استخدم التاريخ المحلي بدلاً من UTC
+    const formatLocalDate = (date) =>
+      date.getFullYear() +
+      "-" +
+      String(date.getMonth() + 1).padStart(2, "0") +
+      "-" +
+      String(date.getDate()).padStart(2, "0");
+
     try {
       await handleUpdateStatus(dateModalAd.id, true, {
-        startDate: newDates.startDate.toISOString().slice(0, 10),
-        endDate: newDates.endDate.toISOString().slice(0, 10),
+        startDate: formatLocalDate(newDates.startDate),
+        endDate: formatLocalDate(newDates.endDate),
       });
       toast.success("Advertisement updated with new dates successfully");
     } catch (error) {
