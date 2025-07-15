@@ -300,76 +300,6 @@ export default function AdsRequest() {
     fetchAdRequests(newPage, "status");
   };
 
-  if (loading) {
-    return (
-      <div className="px-4 lg:px-6">
-        {/* Summary Cards Skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="p-4 border rounded-lg bg-gray-100 animate-pulse flex flex-col gap-2"
-            >
-              <div className="h-4 w-1/3 bg-gray-300 rounded mb-2" />
-              <div className="h-8 w-1/2 bg-gray-400 rounded" />
-            </div>
-          ))}
-        </div>
-        {/* Table Skeleton */}
-        <div className="border rounded-lg overflow-x-auto animate-pulse mb-4">
-          <table className="min-w-full">
-            <thead>
-              <tr>
-                {[...Array(5)].map((_, i) => (
-                  <th key={i} className="px-4 py-2">
-                    <div className="h-4 w-20 bg-gray-300 rounded" />
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[...Array(5)].map((_, row) => (
-                <tr key={row}>
-                  {/* اسم */}
-                  <td className="px-4 py-4">
-                    <div className="h-4 w-32 bg-gray-200 rounded" />
-                  </td>
-                  {/* تواصل */}
-                  <td className="px-4 py-4">
-                    <div className="h-4 w-24 bg-gray-200 rounded" />
-                  </td>
-                  {/* محتوى */}
-                  <td className="px-4 py-4">
-                    <div className="h-4 w-40 bg-gray-200 rounded" />
-                  </td>
-                  {/* حالة */}
-                  <td className="px-4 py-4">
-                    <div className="h-4 w-16 bg-gray-300 rounded" />
-                  </td>
-                  {/* أكشن */}
-                  <td className="px-4 py-4">
-                    <div className="flex gap-2">
-                      <div className="h-8 w-8 bg-gray-300 rounded" />
-                      <div className="h-8 w-8 bg-gray-300 rounded" />
-                      <div className="h-8 w-8 bg-gray-300 rounded" />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {/* Pagination Skeleton */}
-        <div className="flex justify-center mt-6 gap-2">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-8 w-8 bg-gray-300 rounded" />
-          ))}
-          <div className="h-8 w-16 bg-blue-700 rounded" />
-        </div>
-      </div>
-    );
-  }
-
   if (error && !error.toLowerCase().includes("deleted")) {
     return (
       <div className="px-4 lg:px-6">
@@ -489,167 +419,213 @@ export default function AdsRequest() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredRequests.map((request) => (
-                    <TableRow key={request.id}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium max-w-xs">
-                            {request.fullName.length > 20 ? (
-                              <div
-                                className="truncate"
-                                title={request.fullName}
-                              >
-                                {request.fullName.substring(0, 20)}...
-                              </div>
-                            ) : (
-                              <div>{request.fullName}</div>
-                            )}
+                  {loading ? (
+                    // Skeleton rows (like AdsCreation.jsx)
+                    Array.from({ length: 5 }).map((_, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell>
+                          <div className="h-4 bg-gray-200 rounded w-32 animate-pulse mb-2"></div>
+                          <div className="h-3 bg-gray-200 rounded w-24 animate-pulse"></div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="h-4 bg-gray-200 rounded w-40 animate-pulse"></div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2 justify-center">
+                            <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                            <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                            <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
                           </div>
-                          <div className="text-sm text-gray-500">
-                            ID: {request.id.slice(0, 8)}...
-                          </div>
-                        </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="h-8 w-20 bg-gray-200 rounded animate-pulse mx-auto"></div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : filteredRequests.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={6}
+                        className="text-center py-8 text-gray-400"
+                      >
+                        No requests found.
                       </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="text-sm max-w-xs">
-                            {request.email.length > 25 ? (
-                              <div className="truncate" title={request.email}>
-                                {request.email.substring(0, 25)}...
-                              </div>
-                            ) : (
-                              <div>{request.email}</div>
-                            )}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {request.phone}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="max-w-xs">
-                          {request.content.length > 20 ? (
-                            <div className="truncate" title={request.content}>
-                              {request.content.substring(0, 20)}...
+                    </TableRow>
+                  ) : (
+                    filteredRequests.map((request) => (
+                      <TableRow key={request.id}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium max-w-xs">
+                              {request.fullName.length > 20 ? (
+                                <div
+                                  className="truncate"
+                                  title={request.fullName}
+                                >
+                                  {request.fullName.substring(0, 20)}...
+                                </div>
+                              ) : (
+                                <div>{request.fullName}</div>
+                              )}
                             </div>
-                          ) : (
-                            <div>{request.content}</div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{getStatusBadge(request.status)}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            title="View Details"
-                            onClick={() => handleViewRequest(request)}
-                          >
-                            <IconEye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            className={`${
-                              request.status === "accepted"
-                                ? "bg-green-800 hover:bg-green-900 hover:text-white text-white  "
-                                : "bg-green-800 hover:bg-green-900 hover:text-white text-white"
-                            }`}
-                            size="sm"
-                            variant="outline"
-                            title={
-                              request.status === "accepted"
-                                ? "Already Accepted"
-                                : "Accept"
-                            }
-                            onClick={() =>
-                              handleStatusUpdate(request.id, "accepted")
-                            }
-                            disabled={updatingStatus?.requestId === request.id}
-                          >
-                            {updatingStatus?.requestId === request.id &&
-                            updatingStatus?.status === "accepted"
-                              ? "Updating..."
-                              : request.status === "accepted"
-                              ? "Accept"
-                              : "Accept"}
-                          </Button>
-                          <Button
-                            className={`${
-                              request.status === "rejected"
-                                ? "bg-red-600 text-white"
-                                : "bg-red-500 hover:bg-red-700 hover:text-white text-white"
-                            }`}
-                            size="sm"
-                            variant="outline"
-                            title={
-                              request.status === "rejected"
-                                ? "Already Rejected"
-                                : "Reject"
-                            }
-                            onClick={() =>
-                              handleStatusUpdate(request.id, "rejected")
-                            }
-                            disabled={updatingStatus?.requestId === request.id}
-                          >
-                            {updatingStatus?.requestId === request.id &&
-                            updatingStatus?.status === "rejected"
-                              ? "Updating..."
-                              : request.status === "rejected"
-                              ? "Reject"
-                              : "Reject"}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 hover:text-red-700"
-                            title="Delete"
-                            onClick={() => handleDelete(request.id)}
-                            disabled={updatingStatus?.requestId === request.id}
-                          >
-                            <IconTrash className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {hasAdvertisement(request) ? (
-                          <div className="flex items-center gap-2">
-                            <Badge
-                              variant={
-                                getAdvertisementStatus(request) === "Active"
-                                  ? "default"
-                                  : "secondary"
-                              }
-                              className="text-xs"
-                            >
-                              {getAdvertisementStatus(request)}
-                            </Badge>
+                            <div className="text-sm text-gray-500">
+                              ID: {request.id.slice(0, 8)}...
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <div className="text-sm max-w-xs">
+                              {request.email.length > 25 ? (
+                                <div className="truncate" title={request.email}>
+                                  {request.email.substring(0, 25)}...
+                                </div>
+                              ) : (
+                                <div>{request.email}</div>
+                              )}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {request.phone}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="max-w-xs">
+                            {request.content.length > 20 ? (
+                              <div className="truncate" title={request.content}>
+                                {request.content.substring(0, 20)}...
+                              </div>
+                            ) : (
+                              <div>{request.content}</div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>{getStatusBadge(request.status)}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
                             <Button
                               size="sm"
                               variant="outline"
-                              title="View Advertisement"
-                              onClick={() => {
-                                toast.info(
-                                  "Redirecting to advertisements list..."
-                                );
-                                // You can add navigation to ads list here
-                              }}
+                              title="View Details"
+                              onClick={() => handleViewRequest(request)}
                             >
-                              View Ad
+                              <IconEye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              className={`${
+                                request.status === "accepted"
+                                  ? "bg-green-800 hover:bg-green-900 hover:text-white text-white  "
+                                  : "bg-green-800 hover:bg-green-900 hover:text-white text-white"
+                              }`}
+                              size="sm"
+                              variant="outline"
+                              title={
+                                request.status === "accepted"
+                                  ? "Already Accepted"
+                                  : "Accept"
+                              }
+                              onClick={() =>
+                                handleStatusUpdate(request.id, "accepted")
+                              }
+                              disabled={
+                                updatingStatus?.requestId === request.id
+                              }
+                            >
+                              {updatingStatus?.requestId === request.id &&
+                              updatingStatus?.status === "accepted"
+                                ? "Updating..."
+                                : request.status === "accepted"
+                                ? "Accept"
+                                : "Accept"}
+                            </Button>
+                            <Button
+                              className={`${
+                                request.status === "rejected"
+                                  ? "bg-red-600 text-white"
+                                  : "bg-red-500 hover:bg-red-700 hover:text-white text-white"
+                              }`}
+                              size="sm"
+                              variant="outline"
+                              title={
+                                request.status === "rejected"
+                                  ? "Already Rejected"
+                                  : "Reject"
+                              }
+                              onClick={() =>
+                                handleStatusUpdate(request.id, "rejected")
+                              }
+                              disabled={
+                                updatingStatus?.requestId === request.id
+                              }
+                            >
+                              {updatingStatus?.requestId === request.id &&
+                              updatingStatus?.status === "rejected"
+                                ? "Updating..."
+                                : request.status === "rejected"
+                                ? "Reject"
+                                : "Reject"}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-red-600 hover:text-red-700"
+                              title="Delete"
+                              onClick={() => handleDelete(request.id)}
+                              disabled={
+                                updatingStatus?.requestId === request.id
+                              }
+                            >
+                              <IconTrash className="h-4 w-4" />
                             </Button>
                           </div>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="default"
-                            title="Create Ad"
-                            onClick={() => handleOpenCreateAd(request)}
-                          >
-                            Create Ad
-                          </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        </TableCell>
+                        <TableCell>
+                          {hasAdvertisement(request) ? (
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                variant={
+                                  getAdvertisementStatus(request) === "Active"
+                                    ? "default"
+                                    : "secondary"
+                                }
+                                className="text-xs"
+                              >
+                                {getAdvertisementStatus(request)}
+                              </Badge>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                title="View Advertisement"
+                                onClick={() => {
+                                  toast.info(
+                                    "Redirecting to advertisements list..."
+                                  );
+                                  // You can add navigation to ads list here
+                                }}
+                              >
+                                View Ad
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="default"
+                              title="Create Ad"
+                              onClick={() => handleOpenCreateAd(request)}
+                            >
+                              Create Ad
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>

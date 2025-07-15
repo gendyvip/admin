@@ -186,113 +186,32 @@ export default function ContactUs() {
         <CardContent>
           <div className="space-y-6">
             {/* Summary Cards */}
-            {loading ? (
-              <div>
-                {/* Summary Cards Skeleton */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className="p-4 border rounded-lg bg-gray-100 animate-pulse flex flex-col gap-2"
-                    >
-                      <div className="h-4 w-1/3 bg-gray-300 rounded mb-2" />
-                      <div className="h-8 w-1/2 bg-gray-400 rounded" />
-                    </div>
-                  ))}
-                </div>
-                {/* Table Skeleton */}
-                <div className="border rounded-lg overflow-x-auto animate-pulse mb-4">
-                  <table className="min-w-full">
-                    <thead>
-                      <tr>
-                        {[...Array(6)].map((_, i) => (
-                          <th key={i} className="px-4 py-2">
-                            <div className="h-4 w-20 bg-gray-300 rounded" />
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[...Array(5)].map((_, row) => (
-                        <tr key={row}>
-                          {/* اسم */}
-                          <td className="px-4 py-4">
-                            <div className="h-4 w-32 bg-gray-200 rounded" />
-                          </td>
-                          {/* تواصل */}
-                          <td className="px-4 py-4">
-                            <div className="h-4 w-24 bg-gray-200 rounded" />
-                          </td>
-                          {/* موضوع */}
-                          <td className="px-4 py-4">
-                            <div className="h-4 w-28 bg-gray-200 rounded" />
-                          </td>
-                          {/* رسالة */}
-                          <td className="px-4 py-4">
-                            <div className="h-4 w-40 bg-gray-200 rounded" />
-                          </td>
-                          {/* حالة */}
-                          <td className="px-4 py-4">
-                            <div className="h-4 w-16 bg-gray-300 rounded" />
-                          </td>
-                          {/* أكشن */}
-                          <td className="px-4 py-4">
-                            <div className="flex gap-2">
-                              <div className="h-8 w-8 bg-gray-300 rounded" />
-                              <div className="h-8 w-8 bg-gray-300 rounded" />
-                              <div className="h-8 w-8 bg-gray-300 rounded" />
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                {/* Pagination Skeleton */}
-                <div className="flex justify-between items-center mt-4 gap-2">
-                  <div className="h-5 w-1/3 bg-gray-300 rounded" />
-                  <div className="flex gap-2">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="h-8 w-8 bg-gray-300 rounded" />
-                    ))}
-                    <div className="h-8 w-16 bg-blue-700 rounded" />
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="p-4 border rounded-lg">
+                <h3 className="font-semibold text-sm text-gray-600">
+                  Total Requests
+                </h3>
+                <p className="text-2xl font-bold">{stats.total}</p>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="p-4 border rounded-lg">
-                  <h3 className="font-semibold text-sm text-gray-600">
-                    Total Requests
-                  </h3>
-                  <p className="text-2xl font-bold">{stats.total}</p>
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <h3 className="font-semibold text-sm text-gray-600">
-                    Opened
-                  </h3>
-                  <p className="text-2xl font-bold text-green-600">
-                    {stats.opened}
-                  </p>
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <h3 className="font-semibold text-sm text-gray-600">
-                    Waiting
-                  </h3>
-                  <p className="text-2xl font-bold text-yellow-600">
-                    {stats.waiting || 0}
-                  </p>
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <h3 className="font-semibold text-sm text-gray-600">
-                    Closed
-                  </h3>
-                  <p className="text-2xl font-bold text-red-600">
-                    {stats.closed}
-                  </p>
-                </div>
+              <div className="p-4 border rounded-lg">
+                <h3 className="font-semibold text-sm text-gray-600">Opened</h3>
+                <p className="text-2xl font-bold text-green-600">
+                  {stats.opened}
+                </p>
               </div>
-            )}
+              <div className="p-4 border rounded-lg">
+                <h3 className="font-semibold text-sm text-gray-600">Waiting</h3>
+                <p className="text-2xl font-bold text-yellow-600">
+                  {stats.waiting || 0}
+                </p>
+              </div>
+              <div className="p-4 border rounded-lg">
+                <h3 className="font-semibold text-sm text-gray-600">Closed</h3>
+                <p className="text-2xl font-bold text-red-600">
+                  {stats.closed}
+                </p>
+              </div>
+            </div>
 
             {/* Requests Table */}
             <div className="border rounded-lg">
@@ -308,7 +227,35 @@ export default function ContactUs() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredRequests.length === 0 ? (
+                  {loading ? (
+                    Array.from({ length: 5 }).map((_, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell>
+                          <div className="h-4 bg-gray-200 rounded w-32 animate-pulse mb-2"></div>
+                          <div className="h-3 bg-gray-200 rounded w-24 animate-pulse"></div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="h-4 bg-gray-200 rounded w-28 animate-pulse"></div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="h-4 bg-gray-200 rounded w-40 animate-pulse"></div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2 justify-center">
+                            <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                            <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                            <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : filteredRequests.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={6}
@@ -380,7 +327,6 @@ export default function ContactUs() {
                               }
                               disabled={updatingId === req.id}
                             >
-                              {/* {updatingId === req.id ? "Opened" : "Opened"} */}
                               Opened
                             </Button>
                             <Button
@@ -392,7 +338,6 @@ export default function ContactUs() {
                               }
                               disabled={updatingId === req.id}
                             >
-                              {/* {updatingId === req.id ? "Closed..." : "Closed"} */}
                               Closed
                             </Button>
                             <Button

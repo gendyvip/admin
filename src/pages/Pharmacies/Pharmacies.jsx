@@ -169,83 +169,6 @@ export default function Pharmacies() {
     (p) => !p.deals || p.deals.length === 0
   ).length;
 
-  if (loading) {
-    return (
-      <div className="px-4 lg:px-6">
-        {/* Summary Cards Skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="p-4 border rounded-lg bg-gray-100 animate-pulse flex flex-col gap-2"
-            >
-              <div className="h-4 w-1/3 bg-gray-300 rounded mb-2" />
-              <div className="h-8 w-1/2 bg-gray-400 rounded" />
-            </div>
-          ))}
-        </div>
-        {/* Table Skeleton */}
-        <div className="border rounded-lg overflow-x-auto animate-pulse mb-4">
-          <table className="min-w-full">
-            <thead>
-              <tr>
-                {[...Array(7)].map((_, i) => (
-                  <th key={i} className="px-4 py-2">
-                    <div className="h-4 w-20 bg-gray-300 rounded" />
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[...Array(5)].map((_, row) => (
-                <tr key={row}>
-                  {/* اسم الصيدلية */}
-                  <td className="px-4 py-4">
-                    <div className="h-4 w-32 bg-gray-200 rounded" />
-                  </td>
-                  {/* رخصة */}
-                  <td className="px-4 py-4">
-                    <div className="h-4 w-20 bg-gray-200 rounded" />
-                  </td>
-                  {/* تليفون */}
-                  <td className="px-4 py-4">
-                    <div className="h-4 w-24 bg-gray-200 rounded" />
-                  </td>
-                  {/* مدينة */}
-                  <td className="px-4 py-4">
-                    <div className="h-4 w-16 bg-gray-200 rounded" />
-                  </td>
-                  {/* عدد عروض */}
-                  <td className="px-4 py-4">
-                    <div className="h-4 w-10 bg-gray-200 rounded" />
-                  </td>
-                  {/* زر اتجاه */}
-                  <td className="px-4 py-4">
-                    <div className="h-8 w-24 bg-gray-300 rounded" />
-                  </td>
-                  {/* أكشن */}
-                  <td className="px-4 py-4">
-                    <div className="flex gap-2">
-                      <div className="h-8 w-8 bg-gray-300 rounded" />
-                      <div className="h-8 w-8 bg-gray-300 rounded" />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {/* Pagination Skeleton */}
-        <div className="flex justify-end mt-4 gap-2">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-8 w-8 bg-gray-300 rounded" />
-          ))}
-          <div className="h-8 w-16 bg-blue-700 rounded" />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="px-4 lg:px-6">
       <Card>
@@ -325,11 +248,35 @@ export default function Pharmacies() {
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8">
-                      Loading pharmacies...
-                    </TableCell>
-                  </TableRow>
+                  Array.from({ length: 5 }).map((_, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>
+                        <div className="h-4 bg-gray-200 rounded w-32 animate-pulse mb-2"></div>
+                        <div className="h-3 bg-gray-200 rounded w-24 animate-pulse"></div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-4 bg-gray-200 rounded w-10 animate-pulse"></div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-8 w-24 bg-gray-200 rounded animate-pulse"></div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2 justify-center">
+                          <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                          <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 ) : error ? (
                   <TableRow>
                     <TableCell
