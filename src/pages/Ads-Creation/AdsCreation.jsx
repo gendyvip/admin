@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { IconRefresh, IconPlus, IconEye } from "@tabler/icons-react";
+import { IconTrash } from "@tabler/icons-react";
 import useAdsCreationStore from "../../store/useAdsCreation";
 import { toast } from "sonner";
 import {
@@ -53,6 +54,8 @@ export default function AdsCreation() {
   const [showDateModal, setShowDateModal] = useState(false);
   const [dateModalAd, setDateModalAd] = useState(null);
   const [newDates, setNewDates] = useState({ startDate: null, endDate: null });
+  const [deleteModalAd, setDeleteModalAd] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Target position options for the multi-select
   const targetPositionOptions = [
@@ -248,6 +251,29 @@ export default function AdsCreation() {
       toast.error(`Failed to ${statusText} advertisement: ${error.message}`);
     } finally {
       setUpdatingAdId(null);
+    }
+  };
+
+  // Delete ad handler (modal version)
+  const handleDeleteAd = async () => {
+    if (!deleteModalAd) return;
+    setUpdatingAdId(deleteModalAd.id);
+    toast.loading("Deleting advertisement...");
+    try {
+      await adsCreationService.deleteAd(deleteModalAd.id);
+      toast.success("Advertisement deleted successfully");
+      fetchAds({
+        page: currentPage,
+        search: searchTerm,
+        status: statusFilter === "all" ? "" : statusFilter,
+        targetPosition: targetPositionFilter.join(","),
+      });
+    } catch (error) {
+      toast.error(`Failed to delete advertisement: ${error.message}`);
+    } finally {
+      setUpdatingAdId(null);
+      setShowDeleteModal(false);
+      setDeleteModalAd(null);
     }
   };
 
@@ -521,6 +547,19 @@ export default function AdsCreation() {
                             onClick={() => handleUpdateStatus(ad.id, false)}
                           >
                             Inactive
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="bg-gray-100 text-red-600 hover:bg-red-100 border border-red-200"
+                            title="Delete Advertisement"
+                            disabled={updatingAdId === ad.id || loading}
+                            onClick={() => {
+                              setDeleteModalAd(ad);
+                              setShowDeleteModal(true);
+                            }}
+                          >
+                            <IconTrash className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -867,6 +906,43 @@ export default function AdsCreation() {
             </Button>
             <Button variant="default" onClick={handleConfirmDates}>
               Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal for delete confirmation */}
+      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+        <DialogContent className="max-w-md w-full">
+          <DialogHeader>
+            <DialogTitle>Delete Advertisement</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this advertisement? This action
+              cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="font-medium">{deleteModalAd?.title}</div>
+            <div className="text-sm text-muted-foreground">
+              {deleteModalAd?.companyName}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeleteModal(false);
+                setDeleteModalAd(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteAd}
+              disabled={updatingAdId === deleteModalAd?.id}
+            >
+              Delete
             </Button>
           </DialogFooter>
         </DialogContent>

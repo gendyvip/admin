@@ -238,6 +238,29 @@ export const adsCreationService = {
       }
     }
   },
+
+  // Delete advertisement by ID
+  deleteAd: async (adId) => {
+    try {
+      const response = await adsCreationAPI.delete(`/advertisement/${adId}`);
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        const errorMessage =
+          error.response.data?.message ||
+          error.response.data?.error ||
+          JSON.stringify(error.response.data) ||
+          "Failed to delete advertisement";
+        throw new Error(
+          `Server Error (${error.response.status}): ${errorMessage}`
+        );
+      } else if (error.request) {
+        throw new Error("Server is not responding. Please try again later.");
+      } else {
+        throw error;
+      }
+    }
+  },
 };
 
 export default adsCreationService;
