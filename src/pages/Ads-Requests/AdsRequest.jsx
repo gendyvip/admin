@@ -46,6 +46,9 @@ import {
 } from "@/components/ui/dialog";
 import { useRef } from "react";
 import DatePicker from "@/components/ui/date-picker";
+import adsCreationService from "@/api/ads-creation";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { toast } from "sonner";
 
 // Status badge configuration
 const getStatusBadge = (status) => {
@@ -93,26 +96,63 @@ export default function AdsRequest() {
   const [createAdModalOpen, setCreateAdModalOpen] = useState(false);
   const [adForm, setAdForm] = useState(null);
   const imageInputRef = useRef();
+  const [selectedRequestId, setSelectedRequestId] = useState(null);
+
+  // Target position options for the multi-select
+  const targetPositionOptions = [
+    { value: "pharmacyDetails", label: "Pharmacy Details" },
+    { value: "dealDetails", label: "Deal Details" },
+    { value: "homePage", label: "Home Page" },
+    { value: "allDeals", label: "All Deals" },
+    { value: "allPharmcies", label: "All Pharmcies" },
+  ];
+
+  // Function to get label from value
+  const getLabelFromValue = (value) => {
+    if (!value) return "No position";
+    const option = targetPositionOptions.find((opt) => opt.value === value);
+    return option ? option.label : value;
+  };
+
+  // Function to check if request has advertisement
+  const hasAdvertisement = (request) => {
+    return request.advertisementId || request.advertisement;
+  };
+
+  // Function to get advertisement status
+  const getAdvertisementStatus = (request) => {
+    if (request.advertisement) {
+      return request.advertisement.status ? "Active" : "Inactive";
+    }
+    return "Created";
+  };
 
   // فتح المودال
   const handleViewRequest = (request) => {
+    toast.info(`Viewing request: "${request.title}"`);
     setSelectedRequest(request.id);
   };
 
   // غلق المودال
   const handleCloseModal = () => {
+    toast.info("Closing request details");
     setSelectedRequest(null);
   };
 
   // تحديث الحالة (accept/reject)
   const handleStatusUpdate = async (requestId, status) => {
     try {
+      const statusText = status === "accepted" ? "accepting" : "rejecting";
+      toast.loading(
+        `${statusText.charAt(0).toUpperCase() + statusText.slice(1)} request...`
+      );
       setUpdatingStatus({ requestId, status });
       await updateRequestStatus(requestId, status);
       setSelectedRequest(null); // أغلق المودال بعد العملية
       setForceUpdate((f) => f + 1); // إجبار إعادة الرسم بعد التحديث
+      toast.success(`Request ${status} successfully`);
     } catch (error) {
-      // error handling
+      toast.error(`Failed to ${status} request: ${error.message}`);
     } finally {
       setUpdatingStatus(null);
     }
@@ -121,13 +161,15 @@ export default function AdsRequest() {
   // حذف الطلب
   const handleDelete = async (requestId) => {
     try {
+      toast.loading("Deleting request...");
       setUpdatingStatus({ requestId, status: "delete" });
       await deleteRequest(requestId);
       setSelectedRequest(null); // أغلق المودال ويحدث البيانات تلقائيًا
       clearError(); // صفّر رسالة الخطأ بعد الحذف الناجح
       setForceUpdate((f) => f + 1); // إجبار إعادة الرسم بعد الحذف
+      toast.success("Request deleted successfully");
     } catch (error) {
-      // يمكنك هنا فقط عرض رسالة خطأ إذا أردت
+      toast.error(`Failed to delete request: ${error.message}`);
     } finally {
       setUpdatingStatus(null);
     }
@@ -135,6 +177,15 @@ export default function AdsRequest() {
 
   // Open create ad modal with request data
   const handleOpenCreateAd = (request) => {
+    // Check if this request already has an advertisement
+    if (hasAdvertisement(request)) {
+      toast.error(
+        "An advertisement already exists for this request. Please check the advertisements list."
+      );
+      return;
+    }
+
+    toast.info(`Creating advertisement from request: "${request.title}"`);
     setAdForm({
       title: request.title || "",
       companyName: request.companyName || "",
@@ -142,9 +193,10 @@ export default function AdsRequest() {
       status: true,
       startDate: "",
       endDate: "",
-      targetPosition: "",
+      targetPosition: [],
       image: null,
     });
+    setSelectedRequestId(request.id);
     setCreateAdModalOpen(true);
   };
 
@@ -163,9 +215,49 @@ export default function AdsRequest() {
   // Submit create ad
   const handleCreateAd = async (e) => {
     e.preventDefault();
-    // TODO: Call your createAd API/store here with adForm
-    setCreateAdModalOpen(false);
-    setAdForm(null);
+    if (!selectedRequestId) return;
+
+    try {
+      const formData = {
+        ...adForm,
+        targetPosition: adForm.targetPosition, // Send as array directly
+      };
+
+      // Log the form data for debugging
+      console.log("Form data being sent:", formData);
+      console.log("Selected request ID:", selectedRequestId);
+
+      toast.loading("Creating advertisement...");
+
+      await adsCreationService.createAdWithRequestId(
+        selectedRequestId,
+        formData
+      );
+
+      toast.dismiss(); // Dismiss loading toast
+      toast.success("Advertisement created successfully");
+
+      setCreateAdModalOpen(false);
+      setAdForm(null);
+      setSelectedRequestId(null);
+
+      // Refresh requests or ads if needed
+      refreshData(pagination.page, "status");
+    } catch (error) {
+      console.error("Error in handleCreateAd:", error);
+
+      // Dismiss loading toast first
+      toast.dismiss();
+
+      // Handle specific error cases
+      if (error.message.includes("already exists")) {
+        toast.error(
+          "An advertisement already exists for this request. Please check the advertisements list."
+        );
+      } else {
+        toast.error(`Failed to create advertisement: ${error.message}`);
+      }
+    }
   };
 
   // Filtered requests (status filter only applies to current page data)
@@ -181,7 +273,14 @@ export default function AdsRequest() {
 
   // When refreshing, reload current page only (do not reset page or filters)
   const handleRefresh = () => {
-    refreshData(pagination.page, "status");
+    toast.loading("Refreshing data...");
+    refreshData(pagination.page, "status")
+      .then(() => {
+        toast.success("Data refreshed successfully");
+      })
+      .catch((error) => {
+        toast.error(`Failed to refresh: ${error.message}`);
+      });
   };
 
   // When search or filter changes, reset to page 1
@@ -512,14 +611,42 @@ export default function AdsRequest() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Button
-                          size="sm"
-                          variant="default"
-                          title="Create Ad"
-                          onClick={() => handleOpenCreateAd(request)}
-                        >
-                          Create Ad
-                        </Button>
+                        {hasAdvertisement(request) ? (
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              variant={
+                                getAdvertisementStatus(request) === "Active"
+                                  ? "default"
+                                  : "secondary"
+                              }
+                              className="text-xs"
+                            >
+                              {getAdvertisementStatus(request)}
+                            </Badge>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              title="View Advertisement"
+                              onClick={() => {
+                                toast.info(
+                                  "Redirecting to advertisements list..."
+                                );
+                                // You can add navigation to ads list here
+                              }}
+                            >
+                              View Ad
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="default"
+                            title="Create Ad"
+                            onClick={() => handleOpenCreateAd(request)}
+                          >
+                            Create Ad
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -608,15 +735,20 @@ export default function AdsRequest() {
               </div>
               <div>
                 <label className="block font-semibold mb-1">Status</label>
-                <select
-                  name="status"
+                <Select
                   value={adForm.status ? "true" : "false"}
-                  onChange={handleAdFormChange}
-                  className="w-full border rounded px-2 py-1"
+                  onValueChange={(val) =>
+                    setAdForm((prev) => ({ ...prev, status: val === "true" }))
+                  }
                 >
-                  <option value="true">Active</option>
-                  <option value="false">Inactive</option>
-                </select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="true">Active</SelectItem>
+                    <SelectItem value="false">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex gap-2">
                 <div className="flex-1">
@@ -656,10 +788,16 @@ export default function AdsRequest() {
                 <label className="block font-semibold mb-1">
                   Target Position
                 </label>
-                <Input
-                  name="targetPosition"
-                  value={adForm.targetPosition}
-                  onChange={handleAdFormChange}
+                <MultiSelect
+                  options={targetPositionOptions}
+                  selected={adForm.targetPosition}
+                  onChange={(selectedPositions) =>
+                    setAdForm((prev) => ({
+                      ...prev,
+                      targetPosition: selectedPositions,
+                    }))
+                  }
+                  placeholder="Select target positions..."
                 />
               </div>
               <div>

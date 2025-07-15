@@ -25,13 +25,19 @@ const useAdsCreationStore = create((set, get) => ({
   setError: (error) => set({ error }),
 
   // Fetch all advertisements
-  fetchAds: async ({ page = 1, search = "", status = "" } = {}) => {
+  fetchAds: async ({
+    page = 1,
+    search = "",
+    status = "",
+    targetPosition = "",
+  } = {}) => {
     try {
       set({ loading: true, error: null });
       const response = await adsCreationService.getAllAds({
         page,
         search,
         status,
+        targetPosition,
       });
 
       if (response.success) {
