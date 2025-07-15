@@ -182,11 +182,23 @@ export default function Drugs() {
                   </TableHeader>
                   <TableBody>
                     {loading ? (
-                      <TableRow>
-                        <TableCell colSpan={3} className="text-center py-8">
-                          Loading drugs...
-                        </TableCell>
-                      </TableRow>
+                      Array.from({ length: 5 }).map((_, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell>
+                            <div className="h-4 bg-gray-200 rounded w-24 animate-pulse mb-2"></div>
+                            <div className="h-3 bg-gray-200 rounded w-32 animate-pulse"></div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2 justify-center">
+                              <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                              <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
                     ) : drugs.length === 0 ? (
                       <TableRow>
                         <TableCell
