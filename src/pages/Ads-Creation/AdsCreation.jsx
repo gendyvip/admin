@@ -251,20 +251,12 @@ export default function AdsCreation() {
     }
   };
 
-  // Handle Active button click with date check
+  // Handle Active button click: always open date modal
   const handleActiveClick = (ad) => {
-    const today = new Date();
-    const adEnd = new Date(ad.endDate);
-    if (!ad.status && adEnd < today) {
-      toast.info(
-        "This advertisement has expired. Please set new dates to activate it."
-      );
-      setDateModalAd(ad);
-      setNewDates({ startDate: null, endDate: null });
-      setShowDateModal(true);
-    } else {
-      handleUpdateStatus(ad.id, true);
-    }
+    toast.info("Please set new dates to activate this advertisement.");
+    setDateModalAd(ad);
+    setNewDates({ startDate: null, endDate: null });
+    setShowDateModal(true);
   };
 
   // Confirm new dates modal
@@ -276,12 +268,6 @@ export default function AdsCreation() {
     }
     setShowDateModal(false);
     toast.loading("Updating advertisement with new dates...");
-
-    console.log("Confirming dates for ad:", dateModalAd.id);
-    console.log("New dates:", {
-      startDate: newDates.startDate.toISOString().slice(0, 10),
-      endDate: newDates.endDate.toISOString().slice(0, 10),
-    });
 
     try {
       await handleUpdateStatus(dateModalAd.id, true, {
@@ -513,20 +499,20 @@ export default function AdsCreation() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="border-green-600 text-green-700 hover:bg-green-50"
+                            className="bg-green-700 hover:bg-green-800 hover:text-white text-white "
+                            onClick={() => handleActiveClick(ad)}
                             disabled={
                               ad.status === true ||
                               updatingAdId === ad.id ||
                               loading
                             }
-                            onClick={() => handleActiveClick(ad)}
                           >
                             Active
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
-                            className="border-red-600 text-red-700 hover:bg-red-50"
+                            className="bg-red-600 text-white hover:bg-red-700 hover:text-white"
                             disabled={
                               ad.status === false ||
                               updatingAdId === ad.id ||

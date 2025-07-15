@@ -212,7 +212,7 @@ export const adsCreationService = {
       console.log("Update data being sent:", updateData);
       console.log("Ad ID:", adId);
 
-      const response = await adsCreationAPI.patch(
+      const response = await adsCreationAPI.put(
         `/advertisement/${adId}`,
         updateData
       );
