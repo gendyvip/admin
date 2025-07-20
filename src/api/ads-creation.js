@@ -1,38 +1,4 @@
-import axios from "axios";
-
-const API_BASE_URL = "http://localhost:3000/api/v1";
-
-const adsCreationAPI = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Request interceptor to add token
-adsCreationAPI.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Response interceptor to handle errors
-adsCreationAPI.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
-    }
-    return Promise.reject(error);
-  }
-);
+import axiosInstance from "./axios";
 
 export const adsCreationService = {
   // Get all advertisements with pagination
@@ -57,7 +23,7 @@ export const adsCreationService = {
         url += `&targetPosition=${encodeURIComponent(targetPosition)}`;
       }
 
-      const response = await adsCreationAPI.get(url);
+      const response = await axiosInstance.get(url);
       return response.data;
     } catch (error) {
       if (error.response) {
@@ -84,7 +50,7 @@ export const adsCreationService = {
       // Log the data being sent
       console.log("Data being sent to createAd:", dataToSend);
 
-      const response = await adsCreationAPI.post("/advertisement", dataToSend);
+      const response = await axiosInstance.post("/advertisement", dataToSend);
       return response.data;
     } catch (error) {
       console.error("Error in createAd:", error);
@@ -133,7 +99,7 @@ export const adsCreationService = {
         console.log(`${key}:`, value);
       }
 
-      const response = await adsCreationAPI.post(
+      const response = await axiosInstance.post(
         `/advertisement/${requestId}`,
         formData,
         {
@@ -179,7 +145,7 @@ export const adsCreationService = {
   // Get advertisement statistics
   getAdStats: async () => {
     try {
-      const response = await adsCreationAPI.get("/advertisement/stats");
+      const response = await axiosInstance.get("/advertisement/stats");
       return response.data;
     } catch (error) {
       if (error.response) {
@@ -198,38 +164,16 @@ export const adsCreationService = {
   // Update advertisement status (active/inactive)
   updateAdStatus: async (adId, status, extra = {}) => {
     try {
-      const updateData = {
-        status: String(status),
-        ...extra,
-      };
-
-      // Handle targetPosition as array if it's provided
-      if (extra.targetPosition && Array.isArray(extra.targetPosition)) {
-        updateData.targetPosition = extra.targetPosition;
-      }
-
-      // Log the update data
-      console.log("Update data being sent:", updateData);
-      console.log("Ad ID:", adId);
-
-      const response = await adsCreationAPI.put(
-        `/advertisement/${adId}`,
-        updateData
+      const response = await axiosInstance.patch(
+        `/advertisement/${adId}/status`,
+        { status, ...extra }
       );
       return response.data;
     } catch (error) {
-      console.error("Error in updateAdStatus:", error);
-      console.error("Error response:", error.response?.data);
-      console.error("Error status:", error.response?.status);
-
       if (error.response) {
-        const errorMessage =
-          error.response.data?.message ||
-          error.response.data?.error ||
-          JSON.stringify(error.response.data) ||
-          "Failed to update advertisement status";
         throw new Error(
-          `Server Error (${error.response.status}): ${errorMessage}`
+          error.response.data?.message ||
+            "Failed to update advertisement status"
         );
       } else if (error.request) {
         throw new Error("Server is not responding. Please try again later.");
@@ -239,20 +183,15 @@ export const adsCreationService = {
     }
   },
 
-  // Delete advertisement by ID
+  // Delete advertisement
   deleteAd: async (adId) => {
     try {
-      const response = await adsCreationAPI.delete(`/advertisement/${adId}`);
+      const response = await axiosInstance.delete(`/advertisement/${adId}`);
       return response.data;
     } catch (error) {
       if (error.response) {
-        const errorMessage =
-          error.response.data?.message ||
-          error.response.data?.error ||
-          JSON.stringify(error.response.data) ||
-          "Failed to delete advertisement";
         throw new Error(
-          `Server Error (${error.response.status}): ${errorMessage}`
+          error.response.data?.message || "Failed to delete advertisement"
         );
       } else if (error.request) {
         throw new Error("Server is not responding. Please try again later.");
@@ -262,5 +201,3 @@ export const adsCreationService = {
     }
   },
 };
-
-export default adsCreationService;

@@ -1,26 +1,4 @@
-import axios from "axios";
-
-const API_BASE_URL = "http://localhost:3000/api/v1";
-
-const dealsAPI = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Request interceptor to add token from localStorage
-// (assumes token is stored in localStorage)
-dealsAPI.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+import axiosInstance from "./axios";
 
 export const getAllDeals = async (page = 1, search = "") => {
   try {
@@ -28,7 +6,7 @@ export const getAllDeals = async (page = 1, search = "") => {
     if (search && search.trim() !== "") {
       url += `&search=${encodeURIComponent(search)}`;
     }
-    const response = await dealsAPI.get(url);
+    const response = await axiosInstance.get(url);
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -43,7 +21,7 @@ export const getAllDeals = async (page = 1, search = "") => {
 
 export const deleteDeal = async (dealId) => {
   try {
-    const response = await dealsAPI.delete(`/admin/deals/${dealId}`);
+    const response = await axiosInstance.delete(`/admin/deals/${dealId}`);
     return response.data;
   } catch (error) {
     if (error.response) {

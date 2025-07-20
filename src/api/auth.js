@@ -1,48 +1,10 @@
-import axios from "axios";
-
-// Create axios instance with base URL
-const API_BASE_URL = "http://localhost:3000/api/v1";
-
-const authAPI = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Request interceptor to add token
-authAPI.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Response interceptor to handle errors
-authAPI.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    if (error.response?.status === 401) {
-      // Token expired or invalid
-      authService.logout();
-    }
-    return Promise.reject(error);
-  }
-);
+import axiosInstance from "./axios";
 
 export const authService = {
   // Login
   login: async (credentials) => {
     try {
-      const response = await authAPI.post("/auth/login", credentials);
+      const response = await axiosInstance.post("/auth/login", credentials);
 
       // Check if response is successful
       if (response.data.success && response.data.status === 200) {

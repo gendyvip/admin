@@ -1,38 +1,4 @@
-import axios from "axios";
-
-const API_BASE_URL = "http://localhost:3000/api/v1";
-
-const usersAPI = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Request interceptor to add token
-usersAPI.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Response interceptor to handle errors
-usersAPI.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
-    }
-    return Promise.reject(error);
-  }
-);
+import axiosInstance from "./axios";
 
 export const usersService = {
   // Get all users with pagination and search
@@ -68,7 +34,7 @@ export const usersService = {
         url += `&status=${encodeURIComponent(backendStatus)}`;
       }
 
-      const response = await usersAPI.get(url);
+      const response = await axiosInstance.get(url);
       return response.data;
     } catch (error) {
       if (error.response) {
@@ -86,7 +52,7 @@ export const usersService = {
   // Get user by ID
   getUserById: async (userId) => {
     try {
-      const response = await usersAPI.get(`/user/${userId}`);
+      const response = await axiosInstance.get(`/user/${userId}`);
       return response.data;
     } catch (error) {
       if (error.response) {
@@ -102,7 +68,7 @@ export const usersService = {
   // Get user statistics
   getUserStats: async () => {
     try {
-      const response = await usersAPI.get("/user/stats");
+      const response = await axiosInstance.get("/user/stats");
       return response.data;
     } catch (error) {
       if (error.response) {
@@ -120,7 +86,7 @@ export const usersService = {
   // Confirm user
   confirmUser: async (userId) => {
     try {
-      const response = await usersAPI.patch(`/user/${userId}/confirmed`);
+      const response = await axiosInstance.patch(`/user/${userId}/confirmed`);
       return response.data;
     } catch (error) {
       if (error.response) {
@@ -138,7 +104,7 @@ export const usersService = {
   // Block user
   blockUser: async (userId) => {
     try {
-      const response = await usersAPI.patch(`/user/${userId}/blocked`);
+      const response = await axiosInstance.patch(`/user/${userId}/blocked`);
       return response.data;
     } catch (error) {
       if (error.response) {

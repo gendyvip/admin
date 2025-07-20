@@ -1,26 +1,4 @@
-import axios from "axios";
-
-const API_BASE_URL = "http://localhost:3000/api/v1";
-
-const drugsAPI = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Request interceptor to add token
-// (assumes token is stored in localStorage)
-drugsAPI.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+import axiosInstance from "./axios";
 
 export const getAllDrugs = async (page = 1, search = "") => {
   try {
@@ -28,7 +6,7 @@ export const getAllDrugs = async (page = 1, search = "") => {
     if (search && search.trim() !== "") {
       url += `&search=${encodeURIComponent(search)}`;
     }
-    const response = await drugsAPI.get(url);
+    const response = await axiosInstance.get(url);
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -43,7 +21,7 @@ export const getAllDrugs = async (page = 1, search = "") => {
 
 export const deleteDrug = async (drugId) => {
   try {
-    const response = await drugsAPI.delete(`/drug-details/${drugId}`);
+    const response = await axiosInstance.delete(`/drug-details/${drugId}`);
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -58,7 +36,7 @@ export const deleteDrug = async (drugId) => {
 
 export const addDrug = async (drugData) => {
   try {
-    const response = await drugsAPI.post("/drug-details", drugData);
+    const response = await axiosInstance.post("/drug-details", drugData);
     return response.data;
   } catch (error) {
     if (error.response) {

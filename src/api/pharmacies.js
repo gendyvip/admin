@@ -1,25 +1,4 @@
-import axios from "axios";
-
-const API_BASE_URL = "http://localhost:3000/api/v1";
-
-const pharmaciesAPI = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Request interceptor to add token from localStorage
-pharmaciesAPI.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+import axiosInstance from "./axios";
 
 export const getAllPharmacies = async (page = 1, search = "") => {
   try {
@@ -27,7 +6,7 @@ export const getAllPharmacies = async (page = 1, search = "") => {
     if (search && search.trim() !== "") {
       url += `&search=${encodeURIComponent(search)}`;
     }
-    const response = await pharmaciesAPI.get(url);
+    const response = await axiosInstance.get(url);
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -44,7 +23,7 @@ export const getAllPharmacies = async (page = 1, search = "") => {
 
 export const deletePharmacy = async (pharmacyId) => {
   try {
-    const response = await pharmaciesAPI.delete(
+    const response = await axiosInstance.delete(
       `/admin/pharmacies/${pharmacyId}`
     );
     return response.data;
