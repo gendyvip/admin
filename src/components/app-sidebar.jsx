@@ -13,6 +13,7 @@ import {
   IconSettings,
   IconSpeakerphone,
   IconUsers,
+  IconUserScan,
   IconUsersGroup,
   IconVaccine,
   IconVaccineBottle,
@@ -71,6 +72,11 @@ const data = {
       title: "Users",
       url: "/users",
       icon: IconUsersGroup,
+    },
+    {
+      title: "OCR",
+      url: "/ocr",
+      icon: IconUserScan,
     },
 
     {

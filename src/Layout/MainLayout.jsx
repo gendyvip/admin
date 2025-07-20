@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AppLayout from "./AppLayout";
 import AuthLayout from "./AuthLayout";
 import ProtectedRoute from "../components/ProtectedRoute";
+import Ocr from "../pages/Ocr/Ocr";
 
 // Lazy load all page components with better error handling
 const Dashboard = React.lazy(() => import("../pages/Dashboard/Dashboard"));
@@ -175,6 +176,16 @@ export default function MainLayout() {
               <ProtectedRoute>
                 <AppLayout>
                   <AdsCreation />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ocr"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Ocr />
                 </AppLayout>
               </ProtectedRoute>
             }
