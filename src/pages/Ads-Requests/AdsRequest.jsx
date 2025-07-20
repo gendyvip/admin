@@ -46,7 +46,9 @@ import {
 } from "@/components/ui/dialog";
 import { useRef } from "react";
 import DatePicker from "@/components/ui/date-picker";
-import adsCreationService from "@/api/ads-creation";
+import adsCreationService, {
+  adsCreationService as namedAdsCreationService,
+} from "@/api/ads-creation";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { toast } from "sonner";
 

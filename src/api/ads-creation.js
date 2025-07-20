@@ -201,3 +201,5 @@ export const adsCreationService = {
     }
   },
 };
+
+export default adsCreationService;

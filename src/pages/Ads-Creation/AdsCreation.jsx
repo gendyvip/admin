@@ -36,7 +36,9 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import adsCreationService from "@/api/ads-creation";
+import adsCreationService, {
+  adsCreationService as namedAdsCreationService,
+} from "@/api/ads-creation";
 import DatePicker from "@/components/ui/date-picker";
 import { MultiSelect } from "@/components/ui/multi-select";
 
