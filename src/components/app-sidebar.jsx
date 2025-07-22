@@ -196,8 +196,16 @@ export function AppSidebar({ ...props }) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
-                <IconVaccineBottle className="!size-5" />
+              <a
+                href="https://dawaback.com/"
+                className="flex items-center gap-2"
+                target="_blank"
+              >
+                <img
+                  src="https://dawaback.com/logo.svg"
+                  alt="logo dawaback"
+                  className="w-10 h-10 rounded-full object-contain"
+                />
                 <span className="text-base font-semibold">DawaBack</span>
               </a>
             </SidebarMenuButton>
