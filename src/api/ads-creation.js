@@ -164,10 +164,10 @@ export const adsCreationService = {
   // Update advertisement status (active/inactive)
   updateAdStatus: async (adId, status, extra = {}) => {
     try {
-      const response = await axiosInstance.patch(
-        `/advertisement/${adId}/status`,
-        { status, ...extra }
-      );
+      const response = await axiosInstance.put(`/advertisement/${adId}`, {
+        status,
+        ...extra,
+      });
       return response.data;
     } catch (error) {
       if (error.response) {
