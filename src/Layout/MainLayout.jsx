@@ -91,7 +91,7 @@ export default function MainLayout() {
             }
           />
           <Route
-            path="/dashboard"
+            path="/statistics"
             element={
               <ProtectedRoute>
                 <AppLayout>

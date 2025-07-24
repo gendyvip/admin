@@ -10,91 +10,154 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export function SectionCards() {
+export function SectionCards({ data }) {
+  // Fallbacks for loading or missing data
+  const totalRevenue = data?.revenue?.byPlan?.total ?? 0;
+  const totalSubscriptions = data?.totalSubscriptions ?? 0;
+  const activeSubscriptions = data?.activeSubscriptions ?? 0;
+  const monthlySubscriptions = data?.monthlySubscriptions ?? 0;
+  const yearlySubscriptions = data?.yearlySubscriptions ?? 0;
+  const regularSubscriptions = data?.regularSubscriptions ?? 0;
+  const premiumSubscriptions = data?.premiumSubscriptions ?? 0;
+  const walletPayments = data?.walletPayments ?? 0;
+  const visaPayments = data?.visaPayments ?? 0;
+
+  // Prices
+  const monthlyRegularPrice = 50;
+  const monthlyPremiumPrice = 100;
+  const yearlyRegularPrice = 200;
+  const yearlyPremiumPrice = 400;
+
+  // Quantities from API
+  const monthlyRegularCount = data?.monthly_regular ?? 0;
+  const monthlyPremiumCount = data?.monthly_premium ?? 0;
+  const yearlyRegularCount = data?.yearly_regular ?? 0;
+  const yearlyPremiumCount = data?.yearly_premium ?? 0;
+
+  // Revenue calculations
+  const monthlyRegularRevenue = monthlyRegularCount * monthlyRegularPrice;
+  const monthlyPremiumRevenue = monthlyPremiumCount * monthlyPremiumPrice;
+  const yearlyRegularRevenue = yearlyRegularCount * yearlyRegularPrice;
+  const yearlyPremiumRevenue = yearlyPremiumCount * yearlyPremiumPrice;
+
+  // For Regular/Premium breakdown from API response
+  const monthlyRegular = data?.monthly_regular ?? 0;
+  const monthlyPremium = data?.monthly_premium ?? 0;
+  const yearlyRegular = data?.yearly_regular ?? 0;
+  const yearlyPremium = data?.yearly_premium ?? 0;
+
+  // Main numbers for Regular vs Premium
+  const regularTotal = monthlyRegular + yearlyRegular;
+  const premiumTotal = monthlyPremium + yearlyPremium;
+
+  const revenueByStatusActive = data?.revenue?.byStatus?.active ?? 0;
+  const revenueByStatusInactive = data?.revenue?.byStatus?.inactive ?? 0;
+
+  // Calculate percentages for active/inactive revenue
+  const totalStatusRevenue = revenueByStatusActive + revenueByStatusInactive;
+  const activePercent = totalStatusRevenue ? Math.round((revenueByStatusActive / totalStatusRevenue) * 100) : 0;
+  const inactivePercent = totalStatusRevenue ? Math.round((revenueByStatusInactive / totalStatusRevenue) * 100) : 0;
+
   return (
-    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 sm:grid-cols-2 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6">
+      <Card className="@container/card">
+        <CardHeader>
+          <CardDescription>Total Subscriptions</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            {totalSubscriptions}
+          </CardTitle>
+          <CardAction>
+            <Badge variant="outline">
+              <IconTrendingUp />
+              {/* Example: +12.5% */}
+              +12.5%
+            </Badge>
+          </CardAction>
+        </CardHeader>
+        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+          <div className="line-clamp-1 flex gap-2 font-medium">
+            Active: {activeSubscriptions} <IconTrendingUp className="size-4" />
+          </div>
+          <div className="text-muted-foreground">
+            Wallet: {walletPayments} - Visa: {visaPayments}
+          </div>
+          <div className="text-muted-foreground">
+            Monthly: {monthlySubscriptions} - Yearly: {yearlySubscriptions}
+          </div>
+        </CardFooter>
+      </Card>
+      <Card className="@container/card">
+        <CardHeader>
+          <CardDescription>Regular vs Premium</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            {regularTotal} / {premiumTotal}
+          </CardTitle>
+          <CardAction>
+            <Badge variant="outline">
+              <IconTrendingUp />
+              +5%
+            </Badge>
+          </CardAction>
+        </CardHeader>
+        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+          <div className="line-clamp-1 flex gap-2 font-medium">
+            Regular / Premium
+          </div>
+          <div className="text-muted-foreground">
+            Monthly Regular: {monthlyRegular} - Yearly Regular: {yearlyRegular} 
+          </div>
+          <div className="text-muted-foreground">
+          Monthly Premium: {monthlyPremium} - Yearly Premium: {yearlyPremium}
+          </div>
+        </CardFooter>
+      </Card>
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Total Revenue</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            $1,250.00
+            {totalRevenue.toLocaleString()} EGP
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
               <IconTrendingUp />
-              +12.5%
+              {/* Example: +10% */}
+              +10%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Trending up this month <IconTrendingUp className="size-4" />
+            Revenue by Plan
           </div>
           <div className="text-muted-foreground">
-            Visitors for the last 6 months
-          </div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>New Customers</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            1,234
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <IconTrendingDown />
-              -20%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Down 20% this period <IconTrendingDown className="size-4" />
+            Monthly Regular: {monthlyRegularRevenue} EGP - Yearly Regular: {yearlyRegularRevenue} EGP 
           </div>
           <div className="text-muted-foreground">
-            Acquisition needs attention
+          Monthly Premium: {monthlyPremiumRevenue} EGP - Yearly Premium: {yearlyPremiumRevenue} EGP
           </div>
         </CardFooter>
       </Card>
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>Active Accounts</CardDescription>
+          <CardDescription>Active vs Inactive</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            45,678
+            {revenueByStatusActive} EGP  / {revenueByStatusInactive} EGP
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
               <IconTrendingUp />
-              +12.5%
+              {/* Example: +3% */}
+              +3%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Strong user retention <IconTrendingUp className="size-4" />
+          <div className="font-semibold">
+            Active: {activePercent}% | Inactive: {inactivePercent}%
           </div>
-          <div className="text-muted-foreground">Engagement exceed targets</div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Growth Rate</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            4.5%
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <IconTrendingUp />
-              +4.5%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Steady performance increase <IconTrendingUp className="size-4" />
+          <div className="text-muted-foreground">
+            Revenue split by active/inactive subscriptions
           </div>
-          <div className="text-muted-foreground">Meets growth projections</div>
         </CardFooter>
       </Card>
     </div>

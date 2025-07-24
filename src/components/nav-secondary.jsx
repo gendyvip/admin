@@ -35,12 +35,6 @@ export function NavSecondary({ items, ...props }) {
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleLogout}>
-              <IconLogout />
-              <span>Logout</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

@@ -64,8 +64,8 @@ const data = {
   user: getUserData(),
   navMain: [
     {
-      title: "Dashboard",
-      url: "/dashboard",
+      title: "Statistics",
+      url: "/statistics",
       icon: IconDashboard,
     },
     {
@@ -144,21 +144,7 @@ const data = {
     },
   ],
   navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: IconSettings,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
+    // Removed Settings, Get Help, and Search
   ],
   Deals: [
     {
@@ -204,9 +190,9 @@ export function AppSidebar({ ...props }) {
                 <img
                   src="https://dawaback.com/logo.svg"
                   alt="logo dawaback"
-                  className="w-10 h-10 rounded-full object-contain"
+                  className="w-10 h-10 rounded-full object-contain" 
                 />
-                <span className="text-base font-semibold">DawaBack</span>
+                <span className="font-semibold text-2xl text-[#636ae8]">Dawaback</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

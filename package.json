@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start": "vite --host localhost --port 5173",
     "dev:clean": "node scripts/dev-server.js",
     "dev:local": "vite --host localhost --port 5173",
     "build": "vite build",

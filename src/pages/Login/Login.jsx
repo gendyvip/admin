@@ -38,7 +38,7 @@ export default function Login() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/dashboard");
+      navigate("/statistics");
     }
   }, [isAuthenticated, navigate]);
 
@@ -50,7 +50,7 @@ export default function Login() {
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     try {
       await login(values);
-      navigate("/dashboard");
+      navigate("/statistics");
     } catch (error) {
       // Set form errors based on the error message
       if (
@@ -85,8 +85,8 @@ export default function Login() {
   return (
     <Card className="w-full">
       <CardHeader className="text-center">
-        <div className="flex justify-center mb-4">
-          <IconVaccineBottle className="h-12 w-12 text-blue-600" />
+        <div className="flex justify-center">
+          <img src="/logo.svg" alt="Dawaback" className="h-12 w-12" />
         </div>
         <CardTitle className="text-2xl">Admin Dashboard</CardTitle>
         <CardDescription>Sign in to your account to continue</CardDescription>

@@ -11,16 +11,16 @@ export function SiteHeader() {
           orientation="vertical"
           className="mx-2 data-[orientation=vertical]:h-4"
         />
-        <h1 className="text-base font-medium">Documents</h1>
+        <h1 className="text-base font-medium">Dawaback Admin Dashboard</h1>
         <div className="ml-auto flex items-center gap-2">
           <Button variant="ghost" asChild size="sm" className="hidden sm:flex">
             <a
               href="https://dawaback.com"
               rel="noopener noreferrer"
               target="_blank"
-              className="dark:text-foreground"
+              className="dark:text-foreground border-1 border-primary rounded-md px-2 py-1"
             >
-              DawaBack
+             Go to Dawaback
             </a>
           </Button>
         </div>
