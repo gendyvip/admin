@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { fetchAcceptedUsersWithAI } from "@/api/ai-api";
+import { fetchWaitingUsers } from "@/api/ai-api";
 import { Eye } from "lucide-react";
 import {
   Dialog,
@@ -42,9 +42,9 @@ export default function Ocr() {
 
   useEffect(() => {
     setLoading(true);
-    fetchAcceptedUsersWithAI()
+    fetchWaitingUsers()
       .then((res) => {
-        console.log("AI API response:", res);
+        console.log("Waiting Users API response:", res);
         // حماية: لو res.users غير موجودة
         setData(res && Array.isArray(res.users) ? res : { ...res, users: [] });
         setLoading(false);
@@ -122,9 +122,9 @@ export default function Ocr() {
       {/* Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Accepted Users With AI</CardTitle>
+          <CardTitle>Waiting Users</CardTitle>
           <CardDescription>
-            List of users accepted by AI verification
+            List of users waiting for admin or OCR verification
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -199,7 +199,11 @@ export default function Ocr() {
                       <TableCell>{user.fullName}</TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>{user.phone}</TableCell>
-                      <TableCell>{user.role}</TableCell>
+                      <TableCell>
+                        <Badge className="bg-gray-100 text-gray-800">
+                          {user.role}
+                        </Badge>
+                      </TableCell>
                       <TableCell>{user.idCard}</TableCell>
                       <TableCell>
                         {user.isIdVerified ? (
@@ -228,7 +232,7 @@ export default function Ocr() {
                           ? new Date(user.createdAt).toLocaleDateString()
                           : "-"}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="flex items-center">
                         <Button
                           variant="outline"
                           size="sm"
@@ -237,8 +241,21 @@ export default function Ocr() {
                             setModalOpen(true);
                           }}
                           title="View Details"
+                          className="mr-2"
                         >
                           <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="bg-green-700 hover:bg-green-800 text-white mr-2"
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="bg-red-700 hover:bg-red-800 text-white"
+                        >
+                          Reject
                         </Button>
                       </TableCell>
                     </TableRow>
