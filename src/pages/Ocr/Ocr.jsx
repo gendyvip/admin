@@ -26,6 +26,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import usersService from "@/api/users";
+import { toast } from "sonner";
 
 export default function Ocr() {
   const [data, setData] = useState({
@@ -39,6 +41,7 @@ export default function Ocr() {
   const [error, setError] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [actionLoading, setActionLoading] = useState({});
 
   useEffect(() => {
     setLoading(true);
@@ -66,6 +69,27 @@ export default function Ocr() {
   const totalSubscribed = usersArr.filter((u) => u.subscriptionStatus).length;
   const totalUnsubscribed = totalUsers - totalSubscribed;
   const totalVerified = usersArr.filter((u) => u.isIdVerified).length;
+
+  // Handle Accept/Reject
+  const handleUserAction = async (userId, action) => {
+    setActionLoading((prev) => ({ ...prev, [userId]: true }));
+    try {
+      if (action === "accept") {
+        await usersService.confirmUser(userId);
+        toast.success("User accepted successfully");
+      } else if (action === "reject") {
+        await usersService.blockUser(userId);
+        toast.success("User rejected (blocked) successfully");
+      }
+      // Refresh users list
+      const res = await fetchWaitingUsers();
+      setData(res && Array.isArray(res.users) ? res : { ...res, users: [] });
+    } catch (err) {
+      toast.error(err.message || "Action failed");
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [userId]: false }));
+    }
+  };
 
   return (
     <div className="px-4 lg:px-6 space-y-6">
@@ -138,7 +162,7 @@ export default function Ocr() {
                   <TableHead>Role</TableHead>
                   <TableHead>ID Card</TableHead>
                   <TableHead>Verified</TableHead>
-                  <TableHead>Subscription</TableHead>
+                  <TableHead>AI Status</TableHead>
                   <TableHead>Created At</TableHead>
                   <TableHead>Action</TableHead>
                 </TableRow>
@@ -167,7 +191,7 @@ export default function Ocr() {
                         <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
                       </TableCell>
                       <TableCell>
-                        <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
                       </TableCell>
                       <TableCell>
                         <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
@@ -194,72 +218,93 @@ export default function Ocr() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  usersArr.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>{user.fullName}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>{user.phone}</TableCell>
-                      <TableCell>
-                        <Badge className="bg-gray-100 text-gray-800">
-                          {user.role}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{user.idCard}</TableCell>
-                      <TableCell>
-                        {user.isIdVerified ? (
-                          <Badge className="bg-green-100 text-green-800">
-                            Verified
-                          </Badge>
-                        ) : (
+                  usersArr.map((user) => {
+                    // Determine AI Status
+                    let aiStatus = "-";
+                    let aiStatusColor = "bg-gray-100 text-gray-800";
+                    if (user.ocrResult && user.ocrResult.confidence) {
+                      let conf = user.ocrResult.confidence;
+                      // Remove % if present and parse as float
+                      if (typeof conf === "string" && conf.endsWith("%")) {
+                        conf = conf.slice(0, -1);
+                      }
+                      conf = parseFloat(conf);
+                      if (!isNaN(conf)) {
+                        if (conf > 80) {
+                          aiStatus = "Matched";
+                          aiStatusColor = "bg-green-100 text-green-800";
+                        } else if (conf >= 60) {
+                          aiStatus = "Need Review";
+                          aiStatusColor = "bg-yellow-100 text-yellow-800";
+                        } else {
+                          aiStatus = "Refused";
+                          aiStatusColor = "bg-red-100 text-red-800";
+                        }
+                      }
+                    }
+                    return (
+                      <TableRow key={user.id}>
+                        <TableCell>{user.fullName}</TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>{user.phone}</TableCell>
+                        <TableCell>
                           <Badge className="bg-gray-100 text-gray-800">
-                            Not Verified
+                            {user.role}
                           </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {user.subscriptionStatus ? (
-                          <Badge className="bg-green-100 text-green-800">
-                            {user.subscriptionType || "Active"}
-                          </Badge>
-                        ) : (
-                          <Badge className="bg-gray-100 text-gray-800">
-                            No Subscription
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {user.createdAt
-                          ? new Date(user.createdAt).toLocaleDateString()
-                          : "-"}
-                      </TableCell>
-                      <TableCell className="flex items-center">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedUser(user);
-                            setModalOpen(true);
-                          }}
-                          title="View Details"
-                          className="mr-2"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="bg-green-700 hover:bg-green-800 text-white mr-2"
-                        >
-                          Accept
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="bg-red-700 hover:bg-red-800 text-white"
-                        >
-                          Reject
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                        </TableCell>
+                        <TableCell>{user.idCard}</TableCell>
+                        <TableCell>
+                          {user.isIdVerified ? (
+                            <Badge className="bg-green-100 text-green-800">
+                              Verified
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-gray-100 text-gray-800">
+                              Not Verified
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={aiStatusColor}>{aiStatus}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          {user.createdAt
+                            ? new Date(user.createdAt).toLocaleDateString()
+                            : "-"}
+                        </TableCell>
+                        <TableCell className="flex items-center">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setModalOpen(true);
+                            }}
+                            title="View Details"
+                            className="mr-2"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="bg-green-700 hover:bg-green-800 text-white mr-2"
+                            disabled={actionLoading[user.id]}
+                            onClick={() => handleUserAction(user.id, "accept")}
+                          >
+                            {actionLoading[user.id] ? "Accept" : "Accept"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="bg-red-700 hover:bg-red-800 text-white"
+                            disabled={actionLoading[user.id]}
+                            onClick={() => handleUserAction(user.id, "reject")}
+                          >
+                            {actionLoading[user.id] ? "Reject" : "Reject"}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
