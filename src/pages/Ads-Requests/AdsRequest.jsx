@@ -191,6 +191,7 @@ export default function AdsRequest() {
     setAdForm({
       title: request.title || "",
       companyName: request.companyName || "",
+      companyUrl: request.companyUrl || "",
       imageAlt: request.imageAlt || "",
       status: true,
       startDate: "",
@@ -676,128 +677,436 @@ export default function AdsRequest() {
         open={createAdModalOpen}
         onOpenChange={() => setCreateAdModalOpen(false)}
       >
-        <DialogContent className="max-w-lg w-full">
-          <DialogHeader>
-            <DialogTitle>Create Advertisement</DialogTitle>
-            <DialogDescription>
-              Fill in the details to create a new advertisement
+        <DialogContent className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="pb-6">
+            <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <svg
+                className="w-6 h-6 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+              Create Advertisement
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 text-base">
+              Fill in the details below to create a new advertisement campaign
             </DialogDescription>
           </DialogHeader>
           {adForm && (
-            <form onSubmit={handleCreateAd} className="space-y-4">
-              <div>
-                <label className="block font-semibold mb-1">Title</label>
-                <Input
-                  name="title"
-                  value={adForm.title}
-                  onChange={handleAdFormChange}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block font-semibold mb-1">Company Name</label>
-                <Input
-                  name="companyName"
-                  value={adForm.companyName}
-                  onChange={handleAdFormChange}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block font-semibold mb-1">Image Alt</label>
-                <Input
-                  name="imageAlt"
-                  value={adForm.imageAlt}
-                  onChange={handleAdFormChange}
-                />
-              </div>
-              <div>
-                <label className="block font-semibold mb-1">Status</label>
-                <Select
-                  value={adForm.status ? "true" : "false"}
-                  onValueChange={(val) =>
-                    setAdForm((prev) => ({ ...prev, status: val === "true" }))
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="true">Active</SelectItem>
-                    <SelectItem value="false">Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label className="block font-semibold mb-1">Start Date</label>
-                  <DatePicker
-                    value={
-                      adForm.startDate ? new Date(adForm.startDate) : undefined
-                    }
-                    onChange={(date) =>
-                      setAdForm((prev) => ({
-                        ...prev,
-                        startDate: date ? date.toISOString().slice(0, 10) : "",
-                      }))
-                    }
-                    label={null}
-                    placeholder="Select start date"
+            <form onSubmit={handleCreateAd} className="space-y-6">
+              {/* Basic Information Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
+                  <svg
+                    className="w-5 h-5 text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Basic Information
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                      <svg
+                        className="w-4 h-4 text-gray-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                        />
+                      </svg>
+                      Title
+                    </label>
+                    <Input
+                      name="title"
+                      value={adForm.title}
+                      onChange={handleAdFormChange}
+                      className="h-11"
+                      placeholder="Enter advertisement title"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                      <svg
+                        className="w-4 h-4 text-gray-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                        />
+                      </svg>
+                      Company Name
+                    </label>
+                    <Input
+                      name="companyName"
+                      value={adForm.companyName}
+                      onChange={handleAdFormChange}
+                      className="h-11"
+                      placeholder="Enter company name"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4 text-gray-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                      />
+                    </svg>
+                    Company URL
+                  </label>
+                  <Input
+                    name="companyUrl"
+                    value={adForm.companyUrl}
+                    onChange={handleAdFormChange}
+                    placeholder="https://example.com"
+                    type="url"
+                    className="h-11"
+                    required
                   />
                 </div>
-                <div className="flex-1">
-                  <label className="block font-semibold mb-1">End Date</label>
-                  <DatePicker
-                    value={
-                      adForm.endDate ? new Date(adForm.endDate) : undefined
-                    }
-                    onChange={(date) =>
-                      setAdForm((prev) => ({
-                        ...prev,
-                        endDate: date ? date.toISOString().slice(0, 10) : "",
-                      }))
-                    }
-                    label={null}
-                    placeholder="Select end date"
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4 text-gray-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    Image Alt Text
+                  </label>
+                  <Input
+                    name="imageAlt"
+                    value={adForm.imageAlt}
+                    onChange={handleAdFormChange}
+                    className="h-11"
+                    placeholder="Enter image alt text for accessibility"
                   />
                 </div>
               </div>
-              <div>
-                <label className="block font-semibold mb-1">
-                  Target Position
-                </label>
-                <MultiSelect
-                  options={targetPositionOptions}
-                  selected={adForm.targetPosition}
-                  onChange={(selectedPositions) =>
-                    setAdForm((prev) => ({
-                      ...prev,
-                      targetPosition: selectedPositions,
-                    }))
-                  }
-                  placeholder="Select target positions..."
-                />
+
+              {/* Campaign Settings Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
+                  <svg
+                    className="w-5 h-5 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Campaign Settings
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                      <svg
+                        className="w-4 h-4 text-gray-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      Status
+                    </label>
+                    <Select
+                      value={adForm.status ? "true" : "false"}
+                      onValueChange={(val) =>
+                        setAdForm((prev) => ({
+                          ...prev,
+                          status: val === "true",
+                        }))
+                      }
+                    >
+                      <SelectTrigger className="h-11">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="true">Active</SelectItem>
+                        <SelectItem value="false">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                      <svg
+                        className="w-4 h-4 text-gray-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                      Target Position
+                    </label>
+                    <MultiSelect
+                      options={targetPositionOptions}
+                      selected={adForm.targetPosition}
+                      onChange={(selectedPositions) =>
+                        setAdForm((prev) => ({
+                          ...prev,
+                          targetPosition: selectedPositions,
+                        }))
+                      }
+                      placeholder="Select target positions..."
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                      <svg
+                        className="w-4 h-4 text-gray-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                      Start Date
+                    </label>
+                    <DatePicker
+                      value={
+                        adForm.startDate
+                          ? new Date(adForm.startDate)
+                          : undefined
+                      }
+                      onChange={(date) =>
+                        setAdForm((prev) => ({
+                          ...prev,
+                          startDate: date
+                            ? date.toISOString().slice(0, 10)
+                            : "",
+                        }))
+                      }
+                      label={null}
+                      placeholder="Select start date"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                      <svg
+                        className="w-4 h-4 text-gray-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                      End Date
+                    </label>
+                    <DatePicker
+                      value={
+                        adForm.endDate ? new Date(adForm.endDate) : undefined
+                      }
+                      onChange={(date) =>
+                        setAdForm((prev) => ({
+                          ...prev,
+                          endDate: date ? date.toISOString().slice(0, 10) : "",
+                        }))
+                      }
+                      label={null}
+                      placeholder="Select end date"
+                    />
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="block font-semibold mb-1">Image</label>
-                <Input
-                  type="file"
-                  name="image"
-                  accept="image/*"
-                  ref={imageInputRef}
-                  onChange={handleAdFormChange}
-                />
+
+              {/* Media Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
+                  <svg
+                    className="w-5 h-5 text-purple-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <h3 className="text-lg font-semibold text-gray-900">Media</h3>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4 text-gray-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    Advertisement Image
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                    <Input
+                      type="file"
+                      name="image"
+                      accept="image/*"
+                      ref={imageInputRef}
+                      onChange={handleAdFormChange}
+                      className="hidden"
+                      id="image-upload"
+                    />
+                    <label htmlFor="image-upload" className="cursor-pointer">
+                      <svg
+                        className="mx-auto h-12 w-12 text-gray-400"
+                        stroke="currentColor"
+                        fill="none"
+                        viewBox="0 0 48 48"
+                      >
+                        <path
+                          d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <p className="mt-2 text-sm text-gray-600">
+                        <span className="font-medium text-blue-600 hover:text-blue-500">
+                          Click to upload
+                        </span>{" "}
+                        or drag and drop
+                      </p>
+                      <p className="mt-1 text-xs text-gray-500">
+                        PNG, JPG, GIF up to 10MB
+                      </p>
+                    </label>
+                  </div>
+                </div>
               </div>
-              <DialogFooter>
+
+              <DialogFooter className="pt-6 border-t border-gray-200">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setCreateAdModalOpen(false)}
+                  className="h-11 px-6"
                 >
                   Cancel
                 </Button>
-                <Button type="submit" variant="default">
-                  Create
+                <Button
+                  type="submit"
+                  variant="default"
+                  className="h-11 px-6 bg-blue-600 hover:bg-blue-700"
+                >
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                  </svg>
+                  Create Advertisement
                 </Button>
               </DialogFooter>
             </form>
