@@ -99,6 +99,7 @@ export default function AdsRequest() {
   const [adForm, setAdForm] = useState(null);
   const imageInputRef = useRef();
   const [selectedRequestId, setSelectedRequestId] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   // Target position options for the multi-select
   const targetPositionOptions = [
@@ -207,7 +208,19 @@ export default function AdsRequest() {
   const handleAdFormChange = (e) => {
     const { name, value, type, files, checked } = e.target;
     if (type === "file") {
-      setAdForm((prev) => ({ ...prev, [name]: files[0] }));
+      const file = files[0];
+      setAdForm((prev) => ({ ...prev, [name]: file }));
+
+      // Create preview for image files
+      if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setImagePreview(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setImagePreview(null);
+      }
     } else if (type === "checkbox") {
       setAdForm((prev) => ({ ...prev, [name]: checked }));
     } else {
@@ -243,6 +256,7 @@ export default function AdsRequest() {
       setCreateAdModalOpen(false);
       setAdForm(null);
       setSelectedRequestId(null);
+      setImagePreview(null);
 
       // Refresh requests or ads if needed
       refreshData(pagination.page, "status");
@@ -1041,41 +1055,87 @@ export default function AdsRequest() {
                     </svg>
                     Advertisement Image
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                    <Input
-                      type="file"
-                      name="image"
-                      accept="image/*"
-                      ref={imageInputRef}
-                      onChange={handleAdFormChange}
-                      className="hidden"
-                      id="image-upload"
-                    />
-                    <label htmlFor="image-upload" className="cursor-pointer">
-                      <svg
-                        className="mx-auto h-12 w-12 text-gray-400"
-                        stroke="currentColor"
-                        fill="none"
-                        viewBox="0 0 48 48"
-                      >
-                        <path
-                          d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
+
+                  {/* Image Preview */}
+                  {imagePreview && (
+                    <div className="mb-4">
+                      <div className="relative inline-block">
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="max-w-full h-auto max-h-64 rounded-lg border border-gray-300 shadow-sm"
                         />
-                      </svg>
-                      <p className="mt-2 text-sm text-gray-600">
-                        <span className="font-medium text-blue-600 hover:text-blue-500">
-                          Click to upload
-                        </span>{" "}
-                        or drag and drop
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setImagePreview(null);
+                            setAdForm((prev) => ({ ...prev, image: null }));
+                            if (imageInputRef.current) {
+                              imageInputRef.current.value = "";
+                            }
+                          }}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                          title="Remove image"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Image preview - Click the X button to remove
                       </p>
-                      <p className="mt-1 text-xs text-gray-500">
-                        PNG, JPG, GIF up to 10MB
-                      </p>
-                    </label>
-                  </div>
+                    </div>
+                  )}
+
+                  {/* Upload Area */}
+                  {!imagePreview && (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                      <Input
+                        type="file"
+                        name="image"
+                        accept="image/*"
+                        ref={imageInputRef}
+                        onChange={handleAdFormChange}
+                        className="hidden"
+                        id="image-upload"
+                      />
+                      <label htmlFor="image-upload" className="cursor-pointer">
+                        <svg
+                          className="mx-auto h-12 w-12 text-gray-400"
+                          stroke="currentColor"
+                          fill="none"
+                          viewBox="0 0 48 48"
+                        >
+                          <path
+                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                            strokeWidth={2}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <p className="mt-2 text-sm text-gray-600">
+                          <span className="font-medium text-zinc-900 hover:text-zinc-800">
+                            Click to upload
+                          </span>{" "}
+                          or drag and drop
+                        </p>
+                        <p className="mt-1 text-xs text-gray-500">
+                          PNG, JPG, GIF up to 10MB
+                        </p>
+                      </label>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1091,7 +1151,7 @@ export default function AdsRequest() {
                 <Button
                   type="submit"
                   variant="default"
-                  className="h-11 px-6 bg-blue-600 hover:bg-blue-700"
+                  className="h-11 px-6 bg-zinc-900 hover:bg-zinc-800"
                 >
                   <svg
                     className="w-4 h-4 mr-2"
