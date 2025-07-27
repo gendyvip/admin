@@ -109,7 +109,7 @@ export default function Users() {
   };
 
   const handleRoleFilterChange = (value) => {
-    setRoleFilter(value);
+    setSearchTerm(value);
     setCurrentPage(1);
   };
 
