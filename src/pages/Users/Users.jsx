@@ -413,21 +413,7 @@ export default function Users() {
                 <SelectItem value="user">User</SelectItem>
               </SelectContent>
             </Select>
-            <Select
-              value={statusFilter}
-              onValueChange={handleStatusFilterChange}
-            >
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="All Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="verified">Verified</SelectItem>
-                <SelectItem value="ai_verified">AI Verified</SelectItem>
-                <SelectItem value="blocked">Blocked</SelectItem>
-                <SelectItem value="unverified">Unverified</SelectItem>
-              </SelectContent>
-            </Select>
+
           </div>
 
           {/* Users Table */}

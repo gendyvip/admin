@@ -17,18 +17,25 @@ const useAdsRequestStore = create((set, get) => ({
   },
   loading: false,
   error: null,
+  search: "", // Add search state
 
   // Actions
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
+  setSearch: (search) => set({ search }), // Add setSearch action
 
   // Fetch advertisement requests
-  fetchAdRequests: async (page = 1, sortBy = "status") => {
+  fetchAdRequests: async (
+    page = 1,
+    sortBy = "status",
+    search = get().search
+  ) => {
     try {
       set({ loading: true, error: null });
       const response = await advertiseService.getAdvertisementRequests({
         page,
         sortBy,
+        search, // Pass search parameter here
       });
 
       if (response.success) {
@@ -159,6 +166,7 @@ const useAdsRequestStore = create((set, get) => ({
       },
       loading: false,
       error: null,
+      search: "", // Reset search state
     }),
 }));
 

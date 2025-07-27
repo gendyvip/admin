@@ -2,10 +2,16 @@ import axiosInstance from "./axios";
 
 export const advertiseService = {
   // Get advertisement requests
-  getAdvertisementRequests: async ({ page = 1, sortBy = "status" } = {}) => {
+  getAdvertisementRequests: async ({
+    page = 1,
+    sortBy = "status",
+    search = "",
+  } = {}) => {
     try {
       const response = await axiosInstance.get(
-        `/advertisement-request?page=${page}&sortBy=${sortBy}`
+        `/advertisement-request?page=${page}&sortBy=${sortBy}${
+          search ? `&search=${search}` : ""
+        }`
       );
       return response.data;
     } catch (error) {

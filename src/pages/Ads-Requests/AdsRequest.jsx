@@ -86,12 +86,13 @@ export default function AdsRequest() {
     clearError,
     updateRequestStatus,
     deleteRequest,
+    search, // Use search from store
+    setSearch, // Use setSearch from store
   } = useAdsRequestStore();
 
   // Local state for UI
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [updatingStatus, setUpdatingStatus] = useState(null);
   const [forceUpdate, setForceUpdate] = useState(0);
@@ -287,9 +288,8 @@ export default function AdsRequest() {
 
   // When search or filter changes, reset to page 1
   useEffect(() => {
-    if (search !== "") {
-      fetchAdRequests(1, "status");
-    }
+    // Always fetch with the current search value from the store
+    fetchAdRequests(1, "status", search);
   }, [search, fetchAdRequests]);
 
   useEffect(() => {
@@ -299,7 +299,7 @@ export default function AdsRequest() {
   }, [adRequests, selectedRequest]);
 
   const handlePageChange = (newPage) => {
-    fetchAdRequests(newPage, "status");
+    fetchAdRequests(newPage, "status", search); // Pass search from store to page change
   };
 
   if (error && !error.toLowerCase().includes("deleted")) {
@@ -335,8 +335,8 @@ export default function AdsRequest() {
               <Input
                 type="text"
                 placeholder="Search by name, email, or phone"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                value={search} // Use search from store
+                onChange={(e) => setSearch(e.target.value)} // Use setSearch from store
                 className="w-full md:w-64"
               />
               <Select value={statusFilter} onValueChange={setStatusFilter}>
